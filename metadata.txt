@@ -1,0 +1,24 @@
+[general]
+name=BecaGIS Tools
+qgisMinimumVersion=3.10
+description=BecaGIS GeoProcessing Tools
+about= BecaGIS GeoProcessing Tools
+version=22.8.25
+author=Thang Quach
+email=quachdongthang@gmail.com
+tracker=https://github.com/thangqd/BecaGISTools/issues
+repository=https://github.com/BecaGISTools/
+tags=GeoProcessing, expressions
+
+homepage=https://thangqd.github.io/BecaGISTools
+category=Processing
+icon=images/becagistools_logo.png
+
+hasProcessingProvider=True
+experimental=False
+deprecated=False
+server=False
+
+# plugin_dependencies=
+
+
