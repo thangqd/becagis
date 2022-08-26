@@ -29,8 +29,8 @@ __copyright__ = '(L) 2022 by Thang Quach'
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import qgsfunction
-from BecaGISTools.geocapt.topogeo import (dd2dms as DD2DMS,
-                                     dms2dd as DMS2DD, to_do as TO_DO)
+from BecaGISTools.becagislibrary.latlong import (antipode as ANTIPODE)
+group_name = 'BecaGIS Tools'
 # https://qgis.org/pyqgis/3.2/core/Expression/QgsExpression.html
 
 LOC = QgsApplication.locale()[:2]
@@ -44,37 +44,20 @@ def tr(*string):
     else:
         return string[0]
 
-@qgsfunction(args='auto', group='BecaGIS Tools')
-def dd2dms(dd, n_digits, feature, parent):
+@qgsfunction(args='auto', group=group_name)
+def antipode(lat,lon, feature, parent):
     """
-    Transform decimal degrees to degrees, minutes and seconds.
-    <h2>Example usage:</h2>
+    Calculate antipode from a (lat, long) input.
+
+    <h4>Syntax</h4>
+    <p><b>antipode</b>(<i>lat, long</i>) or <b>antipode</b>(<i>y, x</i>) in WGS84 CRS </p>
+
+    <h4>Example usage</h4>
     <ul>
-      <li>dd2dms(dd, 3) -> -12°12'34.741"</li>
+      <li><b>antipode</b>(10.784229903855978, 106.70356815497277) &rarr; returns a point geometry</li>
+      <li><b>geom_to_wkt(antipode</b>(10.784229903855978, 106.70356815497277)) &rarr; 'Point (-73.29643185 -10.7842299)'</li>
     </ul>
     """
-    return DD2DMS(dd, n_digits)
-
-
-@qgsfunction(args='auto', group='BecaGIS Tools')
-def dms2dd(txt, feature, parent):
-    """
-    Transform degrees, minutes, seconds coordinate to decimal degrees.
-    <h2>Example usage:</h2>
-    <ul>
-      <li>dms2dd("dms") -> dd</li>
-      <li>dms2dd('-10d30m00.0s') -> -10.5</li>
-    </ul>
-    """
-    return DMS2DD(txt)
-
-@qgsfunction(args='auto', group='BecaGIS Tools')
-def to_do(digit, feature, parent):
-    """
-    Convert digit to string
-    <h2>Example usage:</h2>
-    <ul>
-      <li>to_do(digit) -> 'digit'</li>
-    </ul>
-    """
-    return TO_DO(digit)
+    antipode_lat,antipode_lon =  ANTIPODE(lat,lon)      
+    antipode_point = QgsPointXY(antipode_lon, antipode_lat)
+    return(QgsGeometry.fromPointXY(antipode_point))

@@ -40,7 +40,7 @@ from PyQt5.QtCore import QCoreApplication
 from .BecaGISTools_provider import BecaGISToolsProvider
 from .expressions import *
 
-exprs = (dd2dms, dms2dd,to_do)
+exprs = [antipode]
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 

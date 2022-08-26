@@ -33,7 +33,7 @@ from qgis.core import (QgsApplication,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink)
 from math import atan2, degrees, fabs
-from BecaGISTools.geocapt.imgs import Imgs
+from BecaGISTools.becagislibrary.imgs import Imgs
 import os
 from qgis.PyQt.QtGui import QIcon
 
@@ -73,7 +73,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
         return self.tr('merge,dissolve,directional,touches,lines,connect,drainage,network').split(',')
 
     def icon(self):
-        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vetor.png'))
+        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vector.png'))
 
     txt_en = 'This algorithm merges lines that touch at their starting or ending points and has the same direction (given a tolerance in degrees). <p>For the attributes can be considered:</p>1 - merge lines that have the same attributes; or</li><li>2 - keep the attributes of the longest line.</li>'
     txt_vi = 'This algorithm merges lines that touch at their starting or ending points and has the same direction (given a tolerance in degrees). <p>For the attributes can be considered:</p>1 - merge lines that have the same attributes; or</li><li>2 - keep the attributes of the longest line.</li>'

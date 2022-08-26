@@ -33,8 +33,7 @@ from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
 from BecaGISTools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
-from BecaGISTools.processing_provider.Vect_PolygonAngles import CalculatePolygonAngles
-from BecaGISTools.processing_provider.Vect_reverseVertexOrder import ReverseVertexOrder
+from BecaGISTools.processing_provider.Vect_Antipode import Antipode
 
 class BecaGISToolsProvider(QgsProcessingProvider):
 
@@ -53,8 +52,7 @@ class BecaGISToolsProvider(QgsProcessingProvider):
 
     def loadAlgorithms(self):
         self.addAlgorithm(DirectionalMerge())
-        self.addAlgorithm(CalculatePolygonAngles())
-        self.addAlgorithm(ReverseVertexOrder())
+        self.addAlgorithm(Antipode())
 
     def id(self):
         return 'BecaGISTools'
