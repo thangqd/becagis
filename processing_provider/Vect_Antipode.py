@@ -17,20 +17,22 @@ __date__ = '2022-08-25'
 __copyright__ = '(L) 2022, Thang Quach'
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsApplication,
-                       QgsProcessingParameterVectorLayer,
-                       QgsGeometry,
-                       QgsProcessing,
-                       QgsProcessingParameterField,
-                       QgsProcessingParameterBoolean,
-                       QgsFeatureSink,
-                       QgsProcessingException,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink)
+# from qgis.core import (QgsApplication,
+#                        QgsProcessingParameterVectorLayer,
+#                        QgsGeometry,
+#                        QgsProcessing,
+#                        QgsProcessingParameterField,
+#                        QgsProcessingParameterBoolean,
+#                        QgsFeatureSink,
+#                        QgsProcessingException,
+#                        QgsProcessingAlgorithm,
+#                        QgsProcessingParameterFeatureSource,
+#                        QgsProcessingParameterFeatureSink)
+from qgis.core import *
 from BecaGISTools.becagislibrary.imgs import Imgs
 from BecaGISTools.becagislibrary.latlong import antipode
-
+from processing.gui.AlgorithmExecutor import execute_in_place
+import processing
 import os
 from qgis.PyQt.QtGui import QIcon
 
@@ -93,6 +95,7 @@ class Antipode(QgsProcessingAlgorithm):
 
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
+    dest_id = None
 
     def initAlgorithm(self, config=None):
 
@@ -104,8 +107,8 @@ class Antipode(QgsProcessingAlgorithm):
                 # [QgsProcessing.TypeVectorLine,
                 #  QgsProcessing.TypeVectorPolygon]
             )
-        )
-       
+        )      
+
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
@@ -115,16 +118,26 @@ class Antipode(QgsProcessingAlgorithm):
        
 
     def processAlgorithm(self, parameters, context, feedback):
-
         source = self.parameterAsSource(
             parameters,
             self.INPUT,
             context
-        )
+        )       
         if source is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))  
+       
+        # Reproject to WGS84 before process
+        if format(source.sourceCrs().authid())!= 'EPSG:4326':
+            input_layer = self.parameterAsVectorLayer(parameters, self.INPUT, context)
+            params = {
+                'INPUT': input_layer,
+                'TARGET_CRS': QgsCoordinateReferenceSystem('EPSG:4326'),
+                'OUTPUT': 'TEMPORARY_OUTPUT'
+            }
+            reproject = processing.run('native:reprojectlayer', params)
+            source = reproject['OUTPUT'] 
 
-        
+        # (sink, dest_id) = self.parameterAsSink(
         (sink, dest_id) = self.parameterAsSink(
             parameters,
             self.OUTPUT,
@@ -133,81 +146,80 @@ class Antipode(QgsProcessingAlgorithm):
             source.wkbType(),
             source.sourceCrs()
         )
-
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
-        total = 100.0 / source.featureCount() if source.featureCount() else 0
-        # antipodal_layer = QgsVectorFileWriter(self.OUTPUT, "UTF-8", layer.dataProvider().fields(),layer.wkbType(), layer.crs(),"ESRI Shapefile")               
-        # for feat in  layer.getFeatures():                					                        
-        #     shapeWriter.addFeature(feat)                                  
-        # del shapeWriter
-        for current, feat in enumerate(source.getFeatures()):
-            geom = feat.geometry()
-            new_geom = geom
-            sink.addFeature(feat, QgsFeatureSink.FastInsert)
+        total = 100.0 / source.featureCount() if source.featureCount() else 0             
+        features = source.getFeatures()      
+        for current, feature in enumerate(features):
+            geom= feature.geometry()
+            if geom.type() == 0: # Point
+                if not geom.isMultipart(): #Single part  
+                    new_geom = self.antipode_geom(feature.geometry().asPoint())
+                    new_feature = QgsFeature()
+                    new_feature.setGeometry(new_geom)
+                    new_feature.setAttributes(feature.attributes()) 
+                    sink.addFeature(new_feature, QgsFeatureSink.FastInsert)   
+                else: #Multi part 
+                    # new_geom = self.antipode_geom(feature.geometry().asPoint())                    
+                    # new_feature = QgsFeature()
+                    # new_feature.setGeometry(new_geom)
+                    # new_feature.setAttributes(feature.attributes()) 
+                    # sink.addFeature(new_feature, QgsFeatureSink.FastInsert) 
+                    pass
+
+            elif geom.type() == 1 and not geom.isMultipart(): #Single part Polyline  
+                vertices = geom.asPolyline() 
+                new_vertices = []
+                for vertice in vertices:
+                    new_vertice  = self.antipode_geom(vertice)
+                    new_vertices.append(QgsPointXY(new_vertice.asPoint()))
+                new_polyline = QgsGeometry.fromPolylineXY(new_vertices)
+                new_feature = QgsFeature()
+                new_feature.setGeometry(new_polyline)
+                new_feature.setAttributes(feature.attributes()) 
+                sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+
+            elif geom.type() == 2 and not geom.isMultipart(): #Single part Polygon  
+                vertices = geom.asPolygon() 
+                new_vertices =[]
+                n = len(vertices[0])
+                for i in range(n):
+                    new_vertice  = self.antipode_geom(vertices[0][i])
+                    new_vertices.append(QgsPointXY(new_vertice.asPoint()))
+                
+                new_vertices_polygon = [[QgsPointXY(i[0], i[1] ) for i in new_vertices]]
+                new_polygon = QgsGeometry.fromPolygonXY(new_vertices_polygon)
+                new_feature = QgsFeature()
+                new_feature.setGeometry(new_polygon)
+                new_feature.setAttributes(feature.attributes()) 
+                sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+
             if feedback.isCanceled():
                 break
-            feedback.setProgress(int(current * total))     
-      
-        feedback.pushInfo(self.tr('Operation completed successfully!', 'Hoàn thành!'))
-        return {}
+            feedback.setProgress(int(current * total))    
+            # feedback.pushInfo(self.tr('Operation completed successfully!', 'Hoàn thành!'))          
+        return {self.OUTPUT: dest_id}
+    
+    def postProcessAlgorithm(self, context, feedback):
 
-    def antipode_geom(self, geom):
-        if geom.type() == 0: #Point
-            if geom.isMultipart():
-                # points = geom.asMultiPoint()
-                # newLines = []
-                # for line in lines:
-                #     newLine = line[::-1]
-                #     newLines += [newLine]
-                # newGeom = QgsGeometry.fromMultiPolylineXY(newLines)
-                # return newGeom
-                pass
-            else:
-                point = geom.asPoint()
-                antipode_lat,antipode_lon =  antipode(lat,lon)      
-                antipode_point = QgsPointXY(antipode_lon, antipode_lat)
-                return(QgsGeometry.fromPointXY(antipode_point))
+        # processed_layer = QgsProcessingUtils.mapLayerFromString(self.OUTPUT: dest_id, context)
+        # Do smth with the layer, e.g. style it
+        # create a new symbol
+        # symbol = QgsLineSymbol.createSimple({'color': 'red'})
+        # # apply symbol to layer renderer
+        # processed_layer.renderer().setSymbol(symbol)
 
-                newLine = line[::-1]
-                newGeom = QgsGeometry.fromPolylineXY(newLine)
-                return newGeom
+        # # repaint the layer
+        # processed_layer.triggerRepaint()
+        # processed_layer.loadNamedStyle("C:/QGIS points.qml")
+        # processed_layer.triggerRepaint()
 
-        # if geom.type() == 1: #Line
-        #     if geom.isMultipart():
-        #         lines = geom.asMultiPolyline()
-        #         newLines = []
-        #         for line in lines:
-        #             newLine = line[::-1]
-        #             newLines += [newLine]
-        #         newGeom = QgsGeometry.fromMultiPolylineXY(newLines)
-        #         return newGeom
-        #     else:
-        #         line = geom.asPolyline()
-        #         newLine = line[::-1]
-        #         newGeom = QgsGeometry.fromPolylineXY(newLine)
-        #         return newGeom
-       
-        # elif geom.type() == 2: #Polygon
-        #     if geom.isMultipart():
-        #         poligonos = geom.asMultiPolygon()
-        #         newPolygons = []
-        #         for pol in poligonos:
-        #             newPol = []
-        #             for anel in pol:
-        #                 newAnel = anel[::-1]
-        #                 newPol += [newAnel]
-        #             newPolygons += [newPol]
-        #         newGeom = QgsGeometry.fromMultiPolygonXY(newPolygons)
-        #         return newGeom
-        #     else:
-        #         pol = geom.asPolygon()
-        #         newPol = []
-        #         for anel in pol:
-        #             newAnel = anel[::-1]
-        #             newPol += [newAnel]
-        #         newGeom = QgsGeometry.fromPolygonXY(newPol)
-        #         return newGeom
-        else:
-            return None
+        # return {self.OUTPUT: self.dest_id}
+
+    def antipode_geom(self, geom):      
+        lat = geom.y()
+        lon = geom.x()
+        antipode_lat,antipode_lon =  antipode(lat,lon)      
+        antipode_point = QgsPointXY(antipode_lon, antipode_lat)
+        return(QgsGeometry.fromPointXY(antipode_point))   

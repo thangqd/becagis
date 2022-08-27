@@ -32,7 +32,7 @@ import os
 from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
-from BecaGISTools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
+# from BecaGISTools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
 from BecaGISTools.processing_provider.Vect_Antipode import Antipode
 
 class BecaGISToolsProvider(QgsProcessingProvider):
@@ -51,7 +51,7 @@ class BecaGISToolsProvider(QgsProcessingProvider):
         pass
 
     def loadAlgorithms(self):
-        self.addAlgorithm(DirectionalMerge())
+        # self.addAlgorithm(DirectionalMerge())
         self.addAlgorithm(Antipode())
 
     def id(self):
