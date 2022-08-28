@@ -33,7 +33,7 @@ from qgis.core import (QgsApplication,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink)
 from math import atan2, degrees, fabs
-from BecaGISTools.becagislibrary.imgs import Imgs
+from becagistools.becagislibrary.imgs import Imgs
 import os
 from qgis.PyQt.QtGui import QIcon
 
