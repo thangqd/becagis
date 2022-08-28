@@ -77,7 +77,7 @@ class Antipode(QgsProcessingAlgorithm):
     txt_en = 'Create Antipodal layer'
     txt_vi = 'Create Antipodal layer'
     figure1 = 'images/tutorial/vect_antipode.png'
-    figure2 = 'images/tutorial/vect_anipodal_layer.png'
+    figure2 = 'images/tutorial/vect_antipodal_layer.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW

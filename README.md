@@ -8,7 +8,7 @@
   </p>
 </p>
 
-# Descriptions
+## Descriptions
 <!-- TABLE OF CONTENTS -->
 <details open="open">
   <summary>BecaGIS Tools</summary>
@@ -22,7 +22,7 @@
 </details>
 
 
-# Vector
+## Vector
 
 ### Create antipodal layer
 
@@ -32,11 +32,5 @@ The antipodes of any place on Earth are distant from it by 180° of longitude an
 </div>
 If the coordinates (longitude and latitude) of a point on the Earth’s surface are (θ, φ), then the coordinates of the antipodal point are (θ ± 180°,−φ). This relation holds true whether the Earth is approximated as a perfect sphere or as a reference ellipsoid.
 <div align="center">
-<table style="text-align: left; width: 275px;" border="0" cellpadding="0" cellspacing="0">
-  <tbody>
-    <tr>
-      <td><img src="images/tutorial/vect_anipodal_layer.png"></td>
-    </tr>
-  </tbody>
-</table>
+  <img src="images/tutorial/vect_antipodal_layer.png">
 </div>
