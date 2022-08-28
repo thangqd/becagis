@@ -2,7 +2,7 @@
 
 """
 /***************************************************************************
- BecaGISTools
+ becagistools
                                  A QGIS plugin
  GeoPorocessing Tools based on lftools https://github.com/LEOXINGU/lftools
                               -------------------
@@ -37,7 +37,7 @@ from qgis.core import (QgsProcessingAlgorithm,
                        QgsApplication,
                        QgsExpression)
 from PyQt5.QtCore import QCoreApplication
-from .BecaGISTools_provider import BecaGISToolsProvider
+from .becagistools_provider import becagistoolsProvider
 from .expressions import *
 
 exprs = [antipode]
@@ -48,7 +48,7 @@ if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
 
-class BecaGISToolsPlugin(object):
+class becagistoolsPlugin(object):
 
     def __init__(self):
         self.provider = None
@@ -56,7 +56,7 @@ class BecaGISToolsPlugin(object):
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
-        self.provider = BecaGISToolsProvider()
+        self.provider = becagistoolsProvider()
         QgsApplication.processingRegistry().addProvider(self.provider)
 
 

@@ -1,7 +1,7 @@
 #/***************************************************************************
-# BecaGISTools
+# becagistools
 #
-# BEcaGIS GeoProcessing Tools
+# BecaGIS GeoProcessing Tools
 #							 -------------------
 #		begin				: 2022-08-25
 #		git sha				: $Format:%H$
@@ -38,13 +38,13 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	BecaGISTools.py 
+	becagistools.py 
 
-PLUGINNAME = BecaGISTools
+PLUGINNAME = becagistools
 
 PY_FILES = \
 	__init__.py \
-	BecaGISTools.py 
+	becagistools.py 
 
 UI_FILES = 
 

@@ -2,7 +2,7 @@
 
 """
 /***************************************************************************
- BecaGISTools
+ becagistools
                                  A QGIS plugin
  GeoPorocessing Tools based on lftools https://github.com/LEOXINGU/lftools
                               -------------------
@@ -32,10 +32,10 @@ import os
 from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
-# from BecaGISTools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
-from BecaGISTools.processing_provider.Vect_Antipode import Antipode
+# from becagistools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
+from becagistools.processing_provider.Vect_Antipode import Antipode
 
-class BecaGISToolsProvider(QgsProcessingProvider):
+class becagistoolsProvider(QgsProcessingProvider):
 
     def __init__(self):
         """
@@ -55,7 +55,7 @@ class BecaGISToolsProvider(QgsProcessingProvider):
         self.addAlgorithm(Antipode())
 
     def id(self):
-        return 'BecaGISTools'
+        return 'becagistools'
 
     def name(self):
         return self.tr('BecaGIS Tools')

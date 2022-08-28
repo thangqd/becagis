@@ -2,7 +2,7 @@
 
 """
 /***************************************************************************
- BecaGISTools
+ becagistools
                                  A QGIS plugin
  GeoPorocessing Tools based on lftools https://github.com/LEOXINGU/lftools
                               -------------------
@@ -29,7 +29,7 @@ __copyright__ = '(L) 2022 by Thang Quach'
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import qgsfunction
-from BecaGISTools.becagislibrary.latlong import (antipode as ANTIPODE)
+from becagistools.becagislibrary.latlong import (antipode as ANTIPODE)
 group_name = 'BecaGIS Tools'
 # https://qgis.org/pyqgis/3.2/core/Expression/QgsExpression.html
 
