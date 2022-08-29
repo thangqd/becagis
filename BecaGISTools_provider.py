@@ -32,8 +32,10 @@ import os
 from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
-# from becagistools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
 from becagistools.processing_provider.Vect_Antipode import Antipode
+from becagistools.processing_provider.Vect_SplitPolygon import SplitPolygon
+from becagistools.processing_provider.Vect_Skeleton import Skeleton
+
 
 class becagistoolsProvider(QgsProcessingProvider):
 
@@ -53,6 +55,9 @@ class becagistoolsProvider(QgsProcessingProvider):
     def loadAlgorithms(self):
         # self.addAlgorithm(DirectionalMerge())
         self.addAlgorithm(Antipode())
+        self.addAlgorithm(SplitPolygon())
+        self.addAlgorithm(Skeleton())
+
 
     def id(self):
         return 'becagistools'

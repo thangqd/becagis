@@ -215,7 +215,7 @@ class Antipode(QgsProcessingAlgorithm):
         # processed_layer.loadNamedStyle("C:/QGIS points.qml")
         # processed_layer.triggerRepaint()
 
-        # return {self.OUTPUT: self.dest_id}
+        return {self.OUTPUT: self.dest_id}
 
     def antipode_geom(self, geom):      
         lat = geom.y()
