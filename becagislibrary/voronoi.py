@@ -13,9 +13,10 @@ __author__ = 'Thang Quach'
 __date__ = '2022-08-25'
 __copyright__ = '(L) 2022 by Thang Quach'
 import processing
+from qgis.core import *
+import numpy as np
 
-
-def hcmgis_split_polygon(layer, parts,random_points):		
+def splitpolygon(layer, parts,random_points):		
     parameters1 = {'INPUT': layer,
                         'INCLUDE_POLYGON_ATTRIBUTES' : True,
                         'MAX_TRIES_PER_POINT' : None,
@@ -55,4 +56,85 @@ def hcmgis_split_polygon(layer, parts,random_points):
             } 
     intersection = processing.run('qgis:intersection',parameters6)
     output = intersection['OUTPUT']
+    return output
+
+def skeleton(layer, field, density, tolerance):		
+    ## create skeleton/ media axis 
+    parameters3 = {'INPUT': layer,
+                   'DISTANCE' :	density,
+                   'OUTPUT' : "memory:points"} 
+    points = processing.run('qgis:pointsalonglines', parameters3)	
+     
+    parameters4 = {'INPUT': points['OUTPUT'],
+                    'BUFFER' : 0, 'OUTPUT' : 'memory:voronoipolygon'} 
+    voronoipolygon = processing.run('qgis:voronoipolygons', parameters4)
+   
+                  
+    
+    parameters5 = {'INPUT': voronoipolygon['OUTPUT'],
+                    'OUTPUT' : 'memory:voronoipolyline'} 
+    voronoipolyline = processing.run('qgis:polygonstolines',parameters5)
+    
+    
+    parameters6 = {'INPUT': voronoipolyline['OUTPUT'],					
+                    'OUTPUT' : 'memory:explode'}
+    explode = processing.run('qgis:explodelines',parameters6)   
+ 
+    
+    parameters7 = {'INPUT': explode['OUTPUT'],
+                    'PREDICATE' : [6], # within					
+                    'INTERSECT':  layer,	
+                    ##############################	
+                    # 'INTERSECT': layer,		
+                    'METHOD' : 0,
+                    'OUTPUT' : 'memory:candidate'}
+    candidate= processing.run('qgis:selectbylocation',parameters7)   
+   
+    
+    parameters8 = {'INPUT':candidate['OUTPUT'],
+                    'OUTPUT':  'memory:medialaxis'}
+    medialaxis = processing.run('qgis:saveselectedfeatures',parameters8)    
+ 
+    
+    parameters9 = {'INPUT':medialaxis['OUTPUT'],
+                    'OUTPUT':  'memory:deleteduplicategeometries'}
+    deleteduplicategeometries = processing.run('qgis:deleteduplicategeometries',parameters9)    
+ 
+    
+    parameter10 =  {'INPUT':deleteduplicategeometries['OUTPUT'],
+                    'FIELD' : field,
+                    'OUTPUT':  "memory:medialaxis_dissolve"}
+    medialaxis_dissolve = processing.run('qgis:dissolve',parameter10) 
+       
+    parameter11 = {'INPUT':medialaxis_dissolve['OUTPUT'],
+                    'METHOD' : 0,
+                    'TOLERANCE' : tolerance, # 0.1m
+                    'OUTPUT':  "memory:simplify"}
+    simplify = processing.run('qgis:simplifygeometries',parameter11)    
+
+    parameter12 = {'INPUT':simplify['OUTPUT'],                    
+                    'OUTPUT':  "memory:explode"}
+    explode = processing.run('qgis:explodelines',parameter12) 
+
+          
+    parameter13 = {'LINES':explode['OUTPUT'],
+                    'ANGLE' : 30,
+                    'TYPE' : 1, # Keep the attribute of the longest line
+                    'OUTPUT':  "memory:skeleton"}
+    directionalmerge = processing.runAndLoadResults('becagistools:directionalmerge',parameter13)    
+    skeleton_candidates = directionalmerge['OUTPUT']
+    skeleton = directionalmerge['OUTPUT']
+    context = QgsProcessingContext()
+    context.setProject(QgsProject.instance())
+    skeleton_candidates_layer = QgsProcessingUtils.mapLayerFromString(skeleton_candidates,context)
+    features = skeleton_candidates_layer.getFeatures()
+    # print ( skeleton_candidates_layer)
+    # print(features)
+    print(skeleton_candidates_layer.featureCount() )
+    feature_id = 0
+    for feature in features:
+        geom = feature.geometry()
+        # print (f)
+        print (geom.length())
+    output = skeleton
     return output

@@ -33,6 +33,7 @@ from becagistools.becagislibrary.imgs import Imgs
 from becagistools.becagislibrary.voronoi import *
 
 import processing
+import string
 from qgis.processing import alg
 import os
 from qgis.PyQt.QtGui import QIcon
@@ -59,9 +60,14 @@ class SplitPolygon(QgsProcessingAlgorithm):
 
     def name(self):
         return 'splitpolygon'
+        # name = "".join([
+        #     character for character in self.displayName().lower()
+        #     if character in string.ascii_letters
+        # ])
+        # return name
 
     def displayName(self):
-        return self.tr('Split Polygon layer', 'Split Polygon layer')
+        return self.tr('Split Polygon', 'Split Polygon')
 
     def group(self):
         return self.tr('Vector', 'Vector')
@@ -73,7 +79,7 @@ class SplitPolygon(QgsProcessingAlgorithm):
         return self.tr('split polygon, voronoi diagram').split(',')
 
     def icon(self):
-        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vector.png'))
+        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_split_polygon.png'))
 
     txt_en = 'Split Polygon layer into almost equal parts using Voronoi Diagram'
     txt_vi = 'Split Polygon layer into almost equal parts using Voronoi Diagram'
@@ -96,20 +102,29 @@ class SplitPolygon(QgsProcessingAlgorithm):
     OUTPUT = 'OUTPUT'
     PARTS = 'PARTS'
     RANDOM_POINTS = 'RANDOM_POINTS'
+    SELECTED = 'SELECTED'
 
     dest_id = None
 
     def initAlgorithm(self, config=None):
-
         self.addParameter(
-            # QgsProcessingParameterVectorLayer(
-            QgsProcessingParameterVectorLayer(
+                QgsProcessingParameterVectorLayer(
+            # QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Input Polygon Layer', 'Chọn lớp Polygon đầu vào'),
-                [QgsProcessing.TypeVectorPolygon]
+                types=[QgsProcessing.TypeVectorPolygon],
+                defaultValue=None
             )
         )      
        
+        
+        self.addParameter(
+           QgsProcessingParameterBoolean(
+                self.SELECTED,
+                self.tr('Selected features only', 'Chỉ những đối tượng được chọn'),
+                defaultValue=False
+            )
+        )
 
         self.addParameter(
             QgsProcessingParameterVectorDestination(
@@ -140,13 +155,29 @@ class SplitPolygon(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        source = self.parameterAsSource(
+        # source = self.parameterAsSource(
+        #     parameters,
+        #     self.INPUT,
+        #     context
+        # )       
+        # if source is None:
+        #     raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))  
+        input_layer = self.parameterAsVectorLayer(
             parameters,
             self.INPUT,
             context
-        )       
-        if source is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))      
+        )
+        if input_layer is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))   
+
+        selected = self.parameterAsBool(
+            parameters,
+            self.SELECTED,
+            context            
+        )
+        if selected is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.SELECTED))
+ 
         
         parts = self.parameterAsInt(
             parameters,
@@ -158,47 +189,41 @@ class SplitPolygon(QgsProcessingAlgorithm):
             self.RANDOM_POINTS,
             context
         )
-
-
-        input_layer = self.parameterAsVectorLayer(parameters, self.INPUT, context)    
-        # input_source = self.parameterAsSource(parameters, self.INPUT, context)
-    
-        mem_layers = []
-        # if 
-        total = 100.0 / input_layer.featureCount() if source.featureCount() else 0             
-        print (input_layer)
-        for feature in input_layer.getFeatures() :
-            print (feature)            
-            mem_layer = QgsVectorLayer('Polygon','polygon','memory')
-            mem_layer.dataProvider().setEncoding(input_layer.dataProvider().encoding())
-            mem_layer.setCrs(input_layer.crs())
-            mem_layer_data = mem_layer.dataProvider()
-            attr = input_layer.dataProvider().fields().toList()
-            mem_layer_data.addAttributes(attr)
-            mem_layer.updateFields()
-            mem_layer.startEditing()
-            mem_layer.addFeature(feature)
-            mem_layer.commitChanges()
-            mem_layers.append(hcmgis_split_polygon(mem_layer,parts,random_points)) 
-            del(mem_layer)   
-            if feedback.isCanceled():
-                break
-            # feedback.setProgress(int(current * total))        
-        merge = processing.run(
-            'native:mergevectorlayers',
-            {
-                'LAYERS': mem_layers,                
-                'OUTPUT' : parameters[self.OUTPUT]           
-            },
-           
-            is_child_algorithm=True,
-            #
-            # It's important to pass on the context and feedback objects to
-            # child algorithms, so that they can properly give feedback to
-            # users and handle cancelation requests.
-            context=context,
-            feedback=feedback)
-        del(mem_layers)   
-        if feedback.isCanceled():
-            return {}       
-        return {self.OUTPUT: merge['OUTPUT']}
+        if not selected:
+            features = input_layer.getFeatures()
+            feature_count = input_layer.featureCount() 
+        else:
+            features = input_layer.getSelectedFeatures()
+            feature_count = input_layer.selectedFeatureCount()
+            
+        total = 100.0 / feature_count if feature_count else 0
+        if (feature_count<=0): 
+            return {} 
+        else:
+            count = 0
+            mem_layers = []  
+            ids = [f.id() for f in features]
+            for id in ids:
+                input_layer.selectByIds([id])
+                sourceDef = QgsProcessingFeatureSourceDefinition(input_layer.id(), True)
+                mem_layers.append(splitpolygon(sourceDef,parts,random_points))
+                count+=1
+                if feedback.isCanceled():
+                    return {}   
+                feedback.setProgress(int(count * total))        
+            merge = processing.run(
+                'native:mergevectorlayers',
+                {
+                    'LAYERS': mem_layers,                
+                    'OUTPUT' : parameters[self.OUTPUT]           
+                },
+                
+                is_child_algorithm=True,
+                #
+                # It's important to pass on the context and feedback objects to
+                # child algorithms, so that they can properly give feedback to
+                # users and handle cancelation requests.
+                context=context,
+                feedback=feedback)
+            del(mem_layers)
+            return {self.OUTPUT: merge['OUTPUT']}      

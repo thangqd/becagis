@@ -40,7 +40,8 @@ from PyQt5.QtCore import QCoreApplication
 from .becagistools_provider import becagistoolsProvider
 from .expressions import *
 
-exprs = [antipode]
+
+exprs =(antipode,tcvn3_unicode,unicode_tcvn3,vni_unicode,unicode_vni,capitalize)
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 

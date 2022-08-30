@@ -1,0 +1,99 @@
+from itertools import chain
+from matplotlib import pyplot as plt
+import pandas as pd
+# import geopandas as gpd
+import random
+from shapely.geometry import box, Point, LineString, Polygon, MultiPolygon
+import contextily as cx
+
+from routingpy.routers import get_router_by_name
+
+BASEMAP_SOURCE = cx.providers.CartoDB.Positron
+HEX_ALPHA = "4F"
+POINT_PLOT_KWDS = {"marker": "D", "color": "black", "markersize": 20}
+plt.rcParams['figure.dpi'] = 50
+bbox = [13.280066,52.459562,13.507532,52.576611]  # bbox Berlin
+minx, miny, maxx, maxy = bbox
+poly_berlin = box(*bbox)
+
+def random_coordinates(n, min_dist, max_dist):
+    assert min_dist < max_dist # make sure parameters are valid
+    
+    coordinates = []
+    for _ in range(n):
+        counter = 0
+        in_poly = False
+        while not in_poly:
+            counter += 1
+            x = random.uniform(minx, maxx)
+            y = random.uniform(miny, maxy)
+            p = Point(x, y)
+            if poly_berlin.contains(p):
+                # Make sure all route segments are within limits
+                if coordinates:
+                    if not min_dist < p.distance(Point(coordinates[-1])) < max_dist:
+                        continue
+                coordinates.append([x, y])
+                in_poly = True
+            if counter > 1000:
+                raise ValueError("Distance settings are too restrictive. Try a wider range and remember it's in degrees.")
+
+    return coordinates
+routers = {
+'ors': {
+    'api_key': '',
+    'display_name': 'OpenRouteService',
+    'profile': 'driving-car',
+    'color': '#b5152b',
+    'isochrones': True
+},
+'mapbox_osrm': {
+    'api_key': '', 
+    'display_name': 'MapBox (OSRM)',
+    'profile': 'driving', 
+    'color': '#ff9900',
+    'isochrones_profile': 'mapbox/driving',
+    'isochrones': True
+},
+'mapbox_valhalla': {
+    'api_key': ''
+    'display_name': 'MapBox (Valhalla)',
+    'profile': 'auto',
+    'color': '#40b6b8',
+    'isochrones': True
+},
+'google': {
+    'api_key': '',
+    'display_name': 'Google',
+    'profile': 'driving', 
+    'color': '#ff33cc',
+    'isochrones': False
+},
+'graphhopper': {
+    'api_key': '',
+    'display_name': 'GraphHopper',
+    'profile': 'car', 
+    'color': '#417900',
+    'isochrones': True
+},
+'heremaps': {
+    'api_key': '', 
+    'display_name': 'HereMaps',
+    'profile': 'car',
+    'color': '#8A2BE2',
+    'isochrones': True
+}
+}
+route_amount = 2
+# distance for 1 degree in Berlin: ~ 110 km latitude, ~68 km longitude, 
+# i.e. 3.4-7 km < distance < 6.8-11 km
+input_pairs = [random_coordinates(n=2, min_dist=0.05, max_dist=0.1) for i in range(route_amount)]
+fig, ax = plt.subplots(1,1, figsize=(10,10))
+img, ext = cx.bounds2img(*bbox, ll=True, source=BASEMAP_SOURCE)
+_ = ax.imshow(img, extent=ext)
+
+for pair in input_pairs:
+    input_df = gpd.GeoDataFrame(geometry=[Point(x,y) for x,y in pair], crs="EPSG:4326").to_crs("EPSG:3857")
+    input_df.plot(ax=ax, **POINT_PLOT_KWDS)
+
+_ = ax.axis("off")

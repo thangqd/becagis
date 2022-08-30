@@ -34,6 +34,8 @@ from becagistools.becagislibrary.voronoi import *
 
 import processing
 from qgis.processing import alg
+import numpy as np
+from pyproj.crs import CRS
 import os
 from qgis.PyQt.QtGui import QIcon
 
@@ -61,7 +63,7 @@ class Skeleton(QgsProcessingAlgorithm):
         return 'skeleton'
 
     def displayName(self):
-        return self.tr('Create Skeleton from Polygon', 'Create Skeleton from Polygon')
+        return self.tr('Skeleton', 'Skeleton')
 
     def group(self):
         return self.tr('Vector', 'Vector')
@@ -75,9 +77,9 @@ class Skeleton(QgsProcessingAlgorithm):
     def icon(self):
         return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_skeleton.png'))
 
-    txt_en = 'Creat skeleton from Polygon layer'
-    txt_vi = 'Creat skeleton from Polygon layer'
-    figure = 'images/vect_skeleton.png'
+    txt_en = 'Skeleton of a Polygon layer'
+    txt_vi = 'Skeleton of a Polygon layer'
+    figure = 'images/tutorial/vect_skeleton.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW
@@ -95,6 +97,8 @@ class Skeleton(QgsProcessingAlgorithm):
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
     DENSITY = 'DENSITY'
+    SELECTED = 'SELECTED'
+    UNIQUE_FIELD = 'UNIQUE_FIELD'
     dest_id = None
 
     def initAlgorithm(self, config=None):
@@ -106,9 +110,36 @@ class Skeleton(QgsProcessingAlgorithm):
                 self.tr('Input Polygon Layer', 'Chọn lớp Polygon đầu vào'),
                 [QgsProcessing.TypeVectorPolygon]
             )
-        )      
-       
+        )           
+        
+        self.addParameter(
+           QgsProcessingParameterBoolean(
+                self.SELECTED,
+                self.tr('Selected features only', 'Chỉ những đối tượng được chọn'),
+                defaultValue=False
+            )
+        )
+        self.addParameter(
+        QgsProcessingParameterNumber(
+            self.DENSITY,
+            self.tr('Density', 'Mật độ điểm'),
+            type=QgsProcessingParameterNumber.Double, 
+            minValue=0.1, 
+            maxValue=100.0, 
+            defaultValue=0.5
+            )
+        )
 
+        self.addParameter(
+            QgsProcessingParameterField(
+                self.UNIQUE_FIELD,
+                self.tr('Unique Field', 'Chọn trường khóa'),
+                parentLayerParameterName = self.INPUT,
+                defaultValue = None,
+            )
+        )
+
+        
         self.addParameter(
             QgsProcessingParameterVectorDestination(
                 self.OUTPUT,
@@ -117,65 +148,93 @@ class Skeleton(QgsProcessingAlgorithm):
         )       
        
     def processAlgorithm(self, parameters, context, feedback):
-        source = self.parameterAsSource(
+        input_layer = self.parameterAsVectorLayer(
             parameters,
             self.INPUT,
             context
-        )       
-        if source is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))      
+        )
+        if input_layer is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))   
+
+        selected = self.parameterAsBool(
+            parameters,
+            self.SELECTED,
+            context            
+        )
+        if selected is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.SELECTED))
         
-        parts = self.parameterAsInt(
+        unique_field = self.parameterAsString(
             parameters,
-            self.PARTS,
-            context
-        )
-        random_points = self.parameterAsInt(
+            self.UNIQUE_FIELD,
+            context)
+        if unique_field is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.UNIQUE_FIELD))
+        
+        density = self.parameterAsDouble(
             parameters,
-            self.RANDOM_POINTS,
-            context
-        )
+            self.DENSITY,
+            context)
 
+        if density is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.DENSITY))         
 
-        input_layer = self.parameterAsVectorLayer(parameters, self.INPUT, context)    
-        # input_source = self.parameterAsSource(parameters, self.INPUT, context)
-    
-        mem_layers = []
-        # if 
-        total = 100.0 / input_layer.featureCount() if source.featureCount() else 0             
-        print (input_layer)
-        for feature in input_layer.getFeatures() :
-            print (feature)            
-            mem_layer = QgsVectorLayer('Polygon','polygon','memory')
-            mem_layer.dataProvider().setEncoding(input_layer.dataProvider().encoding())
-            mem_layer.setCrs(input_layer.crs())
-            mem_layer_data = mem_layer.dataProvider()
-            attr = input_layer.dataProvider().fields().toList()
-            mem_layer_data.addAttributes(attr)
-            mem_layer.updateFields()
-            mem_layer.startEditing()
-            mem_layer.addFeature(feature)
-            mem_layer.commitChanges()
-            mem_layers.append(hcmgis_split_polygon(mem_layer,parts,random_points)) 
-            del(mem_layer)   
-            if feedback.isCanceled():
-                break
-            # feedback.setProgress(int(current * total))        
-        merge = processing.run(
-            'native:mergevectorlayers',
-            {
-                'LAYERS': mem_layers,                
-                'OUTPUT' : parameters[self.OUTPUT]           
-            },
-           
-            is_child_algorithm=True,
-            #
-            # It's important to pass on the context and feedback objects to
-            # child algorithms, so that they can properly give feedback to
-            # users and handle cancelation requests.
-            context=context,
-            feedback=feedback)
-        del(mem_layers)   
-        if feedback.isCanceled():
-            return {}       
-        return {self.OUTPUT: merge['OUTPUT']}
+        if not selected:
+            features = input_layer.getFeatures()
+            feature_count = input_layer.featureCount() 
+        else:
+            features = input_layer.getSelectedFeatures()
+            feature_count = input_layer.selectedFeatureCount()
+        
+        tolerance = 0.1 # for simplify geometry
+        extend = input_layer.sourceExtent()
+        y_max = extend.yMaximum()
+        y_min = extend.yMinimum()
+        if input_layer.crs().isGeographic():
+            EPSG = int(input_layer.crs().authid().split(':')[-1])
+            proj_crs = CRS.from_epsg(EPSG)
+            a=proj_crs.ellipsoid.semi_major_metre
+            f=1/proj_crs.ellipsoid.inverse_flattening
+            e2 = f*(2-f)
+            N = a/np.sqrt(1-e2*(np.sin((y_min+y_max)/2))**2) # Radius of curvature 1 degree vertical
+            M = a*(1-e2)/(1-e2*(np.sin((y_min+y_max)/2))**2)**(3/2.) # Meridian Curvature Radius
+            R = np.sqrt(M*N) # Gaussian mean radius
+            theta_density = density/R
+            theta_tolerance = tolerance/R
+            density = format(np.degrees(theta_density),'f') # Radian to degree
+            tolerance = format(np.degrees(theta_tolerance),'f')# Radian to degree
+            # print (density)
+            # print (tolerance)
+            
+        total = 100.0 / feature_count if feature_count else 0
+        if (feature_count<=0): 
+            return {} 
+        else:
+            count = 0
+            mem_layers = []  
+            ids = [f.id() for f in features]
+            for id in ids:
+                input_layer.selectByIds([id])
+                selected_feature = QgsProcessingFeatureSourceDefinition(input_layer.id(), True)
+                mem_layers.append(skeleton(selected_feature, unique_field, density, tolerance))
+                count+=1
+                if feedback.isCanceled():
+                    return {}   
+                feedback.setProgress(int(count * total))        
+            merge = processing.run(
+                'native:mergevectorlayers',
+                {
+                    'LAYERS': mem_layers,                
+                    'OUTPUT' : parameters[self.OUTPUT]           
+                },
+                
+                is_child_algorithm=True,
+                #
+                # It's important to pass on the context and feedback objects to
+                # child algorithms, so that they can properly give feedback to
+                # users and handle cancelation requests.
+                context=context,
+                feedback=feedback)
+            del(mem_layers)
+            return {self.OUTPUT: merge['OUTPUT']}      
+
