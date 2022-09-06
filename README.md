@@ -3,7 +3,7 @@
     <img src="images/becagistools_logo.png" alt="Logo" width="90" height="75">
   <h3 align="center">BecaGIS Tools</h3>
   <p align="center">
-    <b><i>BecaGIS GeoProcessing Tools</i><b>
+    <b><i>BecaGIS GeoProcessing Tools for QGIS</i><b>
     <br />
   </p>
 </p>
@@ -11,9 +11,12 @@
 ## Descriptions
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  <summary>BecaGIS Tools</summary>
+  <summary>BecaGIS Processing Tools for QGIS</summary>
+  <div align="center">
+  <img src="images/tutorial/vect_voronoi.png">
+</div>
   <ol>
-    <li>     
+    <li>         
       <a href="#vector">Vector</a>     
       <ul>
         <li><a href="#create-antipodal-layer">Create antipodal layer</a></li>
