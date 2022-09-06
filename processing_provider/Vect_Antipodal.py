@@ -195,40 +195,75 @@ class Antipodal(QgsProcessingAlgorithm):
                         new_feature.setGeometry(new_geom)
                         new_feature.setAttributes(feature.attributes()) 
                         sink.addFeature(new_feature, QgsFeatureSink.FastInsert)   
-                    else: #Multi part 
-                        # new_geom = self.antipode_geom(feature.geometry().asPoint())                    
-                        # new_feature = QgsFeature()
-                        # new_feature.setGeometry(new_geom)
-                        # new_feature.setAttributes(feature.attributes()) 
-                        # sink.addFeature(new_feature, QgsFeatureSink.FastInsert) 
-                        pass
+                    else: #Multi point                        
+                        multipoint = geom.asMultiPoint() 
+                        new_multipoint =[] 
+                        for point in multipoint:         
+                            new_point = QgsPointXY(self.antipode_geom(point).asPoint())
+                            new_multipoint.append(new_point)  
+                        new_multipoints= QgsGeometry.fromMultiPointXY(new_multipoint)                            
+                        new_feature = QgsFeature()
+                        new_feature.setGeometry(new_multipoints)
+                        new_feature.setAttributes(feature.attributes()) 
+                        sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+                 
+                elif geom.type() == 1: #Single part Polyline  
+                    if not geom.isMultipart(): #Single part  
+                        vertices = geom.asPolyline() 
+                        new_vertices = []
+                        for vertice in vertices:
+                            new_vertice  = self.antipode_geom(vertice)
+                            new_vertices.append(QgsPointXY(new_vertice.asPoint()))
+                        new_polyline = QgsGeometry.fromPolylineXY(new_vertices)
+                        new_feature = QgsFeature()
+                        new_feature.setGeometry(new_polyline)
+                        new_feature.setAttributes(feature.attributes()) 
+                        sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+                    else: #Multi Polyline
+                        parts = geom.asMultiPolyline() 
+                        new_vertices = [[],[]]
+                        for id, part in enumerate(parts):
+                            for vertice in part:
+                                new_vertice = self.antipode_geom(vertice)
+                                new_vertices[id].append(QgsPointXY(new_vertice.asPoint()))  
+                        new_polyline = QgsGeometry.fromMultiPolylineXY(new_vertices)                            
+                        new_feature = QgsFeature()
+                        new_feature.setGeometry(new_polyline)
+                        new_feature.setAttributes(feature.attributes()) 
+                        sink.addFeature(new_feature, QgsFeatureSink.FastInsert)                     
 
-                elif geom.type() == 1 and not geom.isMultipart(): #Single part Polyline  
-                    vertices = geom.asPolyline() 
-                    new_vertices = []
-                    for vertice in vertices:
-                        new_vertice  = self.antipode_geom(vertice)
-                        new_vertices.append(QgsPointXY(new_vertice.asPoint()))
-                    new_polyline = QgsGeometry.fromPolylineXY(new_vertices)
-                    new_feature = QgsFeature()
-                    new_feature.setGeometry(new_polyline)
-                    new_feature.setAttributes(feature.attributes()) 
-                    sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+                elif (geom.type() == 2): 
+                    if not geom.isMultipart(): #Single part Polygon  
+                        vertices = geom.asPolygon() 
+                        new_vertices =[]
+                        n = len(vertices[0])
+                        for i in range(n):
+                            new_vertice  = self.antipode_geom(vertices[0][i])
+                            new_vertices.append(QgsPointXY(new_vertice.asPoint()))                        
+                        new_vertices_polygon = [[QgsPointXY(i[0], i[1] ) for i in new_vertices]]
+                        new_polygon = QgsGeometry.fromPolygonXY(new_vertices_polygon)
+                        new_feature = QgsFeature()
+                        new_feature.setGeometry(new_polygon)
+                        new_feature.setAttributes(feature.attributes()) 
+                        sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+                    else: #Multipolygon
+                        multipolygon = geom.asMultiPolygon() 
+                        new_multipolygon =[]
+                        for polygon in multipolygon:
+                            new_polygon=[]
+                            for ring in polygon:
+                                new_ring = []
+                                for vertice in ring:                                    
+                                    new_vertice = self.antipode_geom(vertice)
+                                    new_ring.append(QgsPointXY(new_vertice.asPoint()) )
+                                new_polygon.append(new_ring)
+                            new_multipolygon.append(new_polygon)
 
-                elif geom.type() == 2 and not geom.isMultipart(): #Single part Polygon  
-                    vertices = geom.asPolygon() 
-                    new_vertices =[]
-                    n = len(vertices[0])
-                    for i in range(n):
-                        new_vertice  = self.antipode_geom(vertices[0][i])
-                        new_vertices.append(QgsPointXY(new_vertice.asPoint()))
-                    
-                    new_vertices_polygon = [[QgsPointXY(i[0], i[1] ) for i in new_vertices]]
-                    new_polygon = QgsGeometry.fromPolygonXY(new_vertices_polygon)
-                    new_feature = QgsFeature()
-                    new_feature.setGeometry(new_polygon)
-                    new_feature.setAttributes(feature.attributes()) 
-                    sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
+                        new_multipolygons= QgsGeometry.fromMultiPolygonXY(new_multipolygon)                            
+                        new_feature = QgsFeature()
+                        new_feature.setGeometry(new_multipolygons)
+                        new_feature.setAttributes(feature.attributes()) 
+                        sink.addFeature(new_feature, QgsFeatureSink.FastInsert)          
 
                 if feedback.isCanceled():
                     break
@@ -237,19 +272,16 @@ class Antipodal(QgsProcessingAlgorithm):
             return {self.OUTPUT: dest_id}
     
     def postProcessAlgorithm(self, context, feedback):
-
         # processed_layer = QgsProcessingUtils.mapLayerFromString(self.OUTPUT: dest_id, context)
         # Do smth with the layer, e.g. style it
         # create a new symbol
         # symbol = QgsLineSymbol.createSimple({'color': 'red'})
         # # apply symbol to layer renderer
         # processed_layer.renderer().setSymbol(symbol)
-
         # # repaint the layer
         # processed_layer.triggerRepaint()
         # processed_layer.loadNamedStyle("C:/QGIS points.qml")
         # processed_layer.triggerRepaint()
-
         return {self.OUTPUT: self.dest_id}
 
     def antipode_geom(self, geom):      
@@ -257,4 +289,4 @@ class Antipodal(QgsProcessingAlgorithm):
         lon = geom.x()
         antipode_lat,antipode_lon =  antipode(lat,lon)      
         antipode_point = QgsPointXY(antipode_lon, antipode_lat)
-        return(QgsGeometry.fromPointXY(antipode_point))   
+        return(QgsGeometry.fromPointXY(antipode_point)) 

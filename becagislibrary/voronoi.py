@@ -121,20 +121,7 @@ def skeleton(layer, field, density, tolerance):
                     'ANGLE' : 30,
                     'TYPE' : 1, # Keep the attribute of the longest line
                     'OUTPUT':  "memory:skeleton"}
-    directionalmerge = processing.runAndLoadResults('becagistools:directionalmerge',parameter13)    
-    skeleton_candidates = directionalmerge['OUTPUT']
-    skeleton = directionalmerge['OUTPUT']
-    context = QgsProcessingContext()
-    context.setProject(QgsProject.instance())
-    skeleton_candidates_layer = QgsProcessingUtils.mapLayerFromString(skeleton_candidates,context)
-    features = skeleton_candidates_layer.getFeatures()
-    # print ( skeleton_candidates_layer)
-    # print(features)
-    print(skeleton_candidates_layer.featureCount() )
-    feature_id = 0
-    for feature in features:
-        geom = feature.geometry()
-        # print (f)
-        print (geom.length())
-    output = skeleton
+    skeleton = processing.run('becagistools:directionalmerge',parameter13)    
+ 
+    output = skeleton['OUTPUT']
     return output

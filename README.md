@@ -17,6 +17,7 @@
       <a href="#vector">Vector</a>     
       <ul>
         <li><a href="#create-antipodal-layer">Create antipodal layer</a></li>
+        <li><a href="#split-polygon">Split Polygon</a></li>
       </ul>
   </ol>
 </details>
@@ -33,4 +34,11 @@ The antipodes of any place on Earth are distant from it by 180° of longitude an
 If the coordinates (longitude and latitude) of a point on the Earth’s surface are (θ, φ), then the coordinates of the antipodal point are (θ ± 180°,−φ). This relation holds true whether the Earth is approximated as a perfect sphere or as a reference ellipsoid.
 <div align="center">
   <img src="images/tutorial/vect_antipodal_layer.png">
+</div>
+
+### Split Polygon
+
+Split Polygon layer into almost equal parts using Voronoi Diagram
+<div align="center">
+  <img src="images/tutorial/vect_split_polygon.gif">
 </div>

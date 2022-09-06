@@ -122,7 +122,7 @@ class Skeleton(QgsProcessingAlgorithm):
         self.addParameter(
         QgsProcessingParameterNumber(
             self.DENSITY,
-            self.tr('Density', 'Mật độ điểm'),
+            self.tr('Density (m)', 'Mật độ điểm'),
             type=QgsProcessingParameterNumber.Double, 
             minValue=0.1, 
             maxValue=100.0, 
@@ -205,7 +205,7 @@ class Skeleton(QgsProcessingAlgorithm):
             tolerance = format(np.degrees(theta_tolerance),'f')# Radian to degree
             # print (density)
             # print (tolerance)
-            
+        
         total = 100.0 / feature_count if feature_count else 0
         if (feature_count<=0): 
             return {} 
@@ -216,6 +216,7 @@ class Skeleton(QgsProcessingAlgorithm):
             for id in ids:
                 input_layer.selectByIds([id])
                 selected_feature = QgsProcessingFeatureSourceDefinition(input_layer.id(), True)
+                ########## Percent of length instead of fixed value
                 mem_layers.append(skeleton(selected_feature, unique_field, density, tolerance))
                 count+=1
                 if feedback.isCanceled():
