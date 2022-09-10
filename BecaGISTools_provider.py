@@ -35,9 +35,11 @@ from qgis.PyQt.QtGui import QIcon
 from becagistools.processing_provider.Vect_Antipodal import Antipodal
 from becagistools.processing_provider.Vect_SplitPolygon import SplitPolygon
 from becagistools.processing_provider.Vect_Skeleton import Skeleton
+from becagistools.processing_provider.Vect_Isolation import Isolation
 from becagistools.processing_provider.Vect_DirectionalMerge import DirectionalMerge
-
-
+from becagistools.processing_provider.Vect_Lec import Lec
+from becagistools.processing_provider.Vect_ClosestFarthest import ClosestFarthest
+from becagistools.processing_provider.Att_FontConvert import FontConvert
 
 class becagistoolsProvider(QgsProcessingProvider):
 
@@ -58,8 +60,12 @@ class becagistoolsProvider(QgsProcessingProvider):
         self.addAlgorithm(Antipodal())
         self.addAlgorithm(SplitPolygon())
         self.addAlgorithm(Skeleton())
+        self.addAlgorithm(Isolation())
         self.addAlgorithm(DirectionalMerge())
-        
+        self.addAlgorithm(Lec())
+        self.addAlgorithm(ClosestFarthest())        
+        self.addAlgorithm(FontConvert())
+
     def id(self):
         return 'becagistools'
 

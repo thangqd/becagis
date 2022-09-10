@@ -77,7 +77,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
 
     txt_en = 'This algorithm merges lines that touch at their starting or ending points and has the same direction (given a tolerance in degrees). <p>For the attributes can be considered:</p>1 - merge lines that have the same attributes; or</li><li>2 - keep the attributes of the longest line.</li>'
     txt_vi = 'This algorithm merges lines that touch at their starting or ending points and has the same direction (given a tolerance in degrees). <p>For the attributes can be considered:</p>1 - merge lines that have the same attributes; or</li><li>2 - keep the attributes of the longest line.</li>'
-    figure = 'images/tutorial/vect_directional_merge.jpg'
+    figure = 'images/tutorial/vect_directional_merge.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW
@@ -86,8 +86,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                       </div>
                       <div align="right">
                       <p align="right">
-                      <b>'''+self.tr('Author: Thang Quach','Tác giả: Thang Quach')+'''</b>
-                      </p>'''+ social_BW + '''</div>
+                      <b>'''+self.tr('Author: Leandro Franca - LFTools','Tác giả: Leandro Franca - LFTools')+'''</b>                      
                     </div>'''
         return self.tr(self.txt_en, self.txt_vi) + footer
 
@@ -178,7 +177,6 @@ class DirectionalMerge(QgsProcessingAlgorithm):
         list = []
         for feature in lines.getFeatures():
             list += self.ang_points(feature)
-
         # Create a new list with the final features merged
         new_list = []
         # Remove linear rings from the list and add them to the new list
@@ -190,8 +188,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                 new_list+= [list[idx][0]]
                 del  list[idx]
             else:
-                idx +=1
-
+                idx +=1        
         # Merge lines that touch and have the same direction (with the same attribute)
         feedback.pushInfo(self.tr('Merging lines...', 'Gộp đường....'))
         if attributes == 0:
@@ -213,10 +210,11 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                         P_end_B = list[j][2]
                         ang_ini_B = list[j][3]
                         ang_end_B = list[j][4]
-                        att_B = list[j][5]
+                        att_B = list[j][5]                       
+
                         if att_A == att_B:
                             # 4 possibilidades
-                            # 1 - End point of A equals start point of B
+                            # 1 - End point of A equals start point of B                           
                             if (P_end_A == P_ini_B) and (fabs(ang_end_A-ang_ini_B)<tol or fabs(360-fabs(ang_end_A-ang_ini_B))<tol):
                                 merged = True
                                 break
@@ -231,7 +229,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                             # 4 - End point of A equals end point of B
                             elif (P_end_A == P_end_B) and (fabs(ang_end_A - self.contraAz(ang_end_B))<tol or fabs(360-fabs(ang_end_A - self.contraAz(ang_end_B)))<tol):
                                 merged = True
-                                break
+                                break                            
                     if merged:
                         geom_A = QgsGeometry.fromPolylineXY(coord_A)
                         geom_B = QgsGeometry.fromPolylineXY(coord_B)
@@ -252,6 +250,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                     if not(merged):
                         # Remove geometry that doesn't connect to anything from the list
                         new_list += [[coord_A, att_A]]
+                        print ('not merge')
                         del list[i]
                         break
                 if len(list)==1:
@@ -277,7 +276,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                         P_end_B = list[j][2]
                         ang_ini_B = list[j][3]
                         ang_end_B = list[j][4]
-                        att_B = list[j][5]
+                        att_B = list[j][5]                       
                         # 4 possibilidades
                         # 1 - End point of A equals start point of B
                         if (P_end_A == P_ini_B) and (fabs(ang_end_A-ang_ini_B)<tol or fabs(360-fabs(ang_end_A-ang_ini_B))<tol):
@@ -299,6 +298,8 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                         geom_A = QgsGeometry.fromPolylineXY(coord_A)
                         geom_B = QgsGeometry.fromPolylineXY(coord_B)
                         new_geom = geom_A.combine(geom_B)
+                        # print (new_geom)
+                        # print (new_geom.length())
 
                         length_A = geom_A.length()
                         length_B = geom_B.length()
@@ -325,7 +326,6 @@ class DirectionalMerge(QgsProcessingAlgorithm):
                         break
                 if len(list)==1:
                     new_list += [[list[0][0], list[0][5]]]
-
         # Creating the output shapefile
         feedback.pushInfo(self.tr('Saving output...', 'Lưu kết quả...'))
         n_pnts = len(new_list)
@@ -342,7 +342,6 @@ class DirectionalMerge(QgsProcessingAlgorithm):
             feedback.setProgress(int((k+1) * total))
 
         feedback.pushInfo(self.tr('Operation completed successfully!', 'Hoàn thành!'))
-        feedback.pushInfo(self.tr('Thang Quach - M.Sc in GIS', 'Thang Quach - M.Sc in GIS'))
 
         return {self.OUTPUT: dest_id}
 

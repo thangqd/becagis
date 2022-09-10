@@ -2,7 +2,7 @@
 
 
 """
-Vect_Skeleton.py
+Vect_Isolation.py
 ***************************************************************************
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -39,7 +39,7 @@ from pyproj.crs import CRS
 import os
 from qgis.PyQt.QtGui import QIcon
 
-class Skeleton(QgsProcessingAlgorithm):
+class Isolation(QgsProcessingAlgorithm):
 
     LOC = QgsApplication.locale()[:2]
 
@@ -57,13 +57,13 @@ class Skeleton(QgsProcessingAlgorithm):
             return self.translate(string[0])
 
     def createInstance(self):
-        return Skeleton()
+        return Isolation()
 
     def name(self):
-        return 'skeleton'
+        return 'isolation'
 
     def displayName(self):
-        return self.tr('Skeleton', 'Skeleton')
+        return self.tr('Isolation', 'Isolation')
 
     def group(self):
         return self.tr('Vector', 'Vector')
@@ -72,14 +72,14 @@ class Skeleton(QgsProcessingAlgorithm):
         return 'vector'
 
     def tags(self):
-        return self.tr('skeleton, voronoi diagram').split(',')
+        return self.tr('Isolation, voronoi diagram').split(',')
 
     def icon(self):
-        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_skeleton.png'))
+        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_isolation.png'))
 
-    txt_en = 'Skeleton of a Polygon layer'
-    txt_vi = 'Skeleton of a Polygon layer'
-    figure = 'images/tutorial/vect_skeleton.png'
+    txt_en = 'Find the most isolated point of a Point layer'
+    txt_vi = 'Find the most isolated point of a Point layer'
+    figure = 'images/tutorial/vect_isolation.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW
@@ -96,40 +96,20 @@ class Skeleton(QgsProcessingAlgorithm):
 
     INPUT = 'INPUT'
     OUTPUT = 'OUTPUT'
-    DENSITY = 'DENSITY'
-    SELECTED = 'SELECTED'
-    UNIQUE_FIELD = 'UNIQUE_FIELD'
-    dest_id = None
+    CIRCLE = 'CIRCLE'
+    UNIQUE_FIELD = 'UNIQUE_FIELD'    
 
     def initAlgorithm(self, config=None):
 
         self.addParameter(
-            # QgsProcessingParameterVectorLayer(
+            # QgsProcessingParameterFeatureSource(
             QgsProcessingParameterVectorLayer(
                 self.INPUT,
-                self.tr('Input Polygon Layer', 'Chọn lớp Polygon đầu vào'),
-                [QgsProcessing.TypeVectorPolygon]
+                self.tr('Input Point Layer', 'Chọn lớp Point đầu vào'),
+                [QgsProcessing.TypeVectorPoint]
             )
         )           
         
-        self.addParameter(
-           QgsProcessingParameterBoolean(
-                self.SELECTED,
-                self.tr('Selected features only', 'Chỉ những đối tượng được chọn'),
-                defaultValue=False
-            )
-        )
-        self.addParameter(
-        QgsProcessingParameterNumber(
-            self.DENSITY,
-            self.tr('Density (m)', 'Mật độ điểm'),
-            type=QgsProcessingParameterNumber.Double, 
-            minValue=0.1, 
-            maxValue=100.0, 
-            defaultValue=1.0
-            )
-        )
-
         self.addParameter(
             QgsProcessingParameterField(
                 self.UNIQUE_FIELD,
@@ -138,60 +118,51 @@ class Skeleton(QgsProcessingAlgorithm):
                 defaultValue = None,
             )
         )
-
         
         self.addParameter(
-            QgsProcessingParameterVectorDestination(
+            # QgsProcessingParameterVectorDestination(
+                QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
-                self.tr('Skeleton Layer', 'Skeleton Layer')
+                self.tr('Isolated Point', 'Isolated Point')
             )
-        )       
-       
-    def processAlgorithm(self, parameters, context, feedback):
-        input_layer = self.parameterAsVectorLayer(
+        )  
+          
+        self.addParameter(
+             QgsProcessingParameterVectorDestination(
+                # QgsProcessingParameterFeatureSink(
+                self.CIRCLE,
+                self.tr('Circle', 'Circle')
+            )
+        )  
+        
+    def processAlgorithm(self, parameters, context, feedback):       
+
+        # source = self.parameterAsSource(
+        source = self.parameterAsVectorLayer(
             parameters,
             self.INPUT,
             context
         )
-        if input_layer is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))   
-
-        selected = self.parameterAsBool(
-            parameters,
-            self.SELECTED,
-            context            
-        )
-        if selected is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.SELECTED))
+        if source is None:
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))       
         
         unique_field = self.parameterAsString(
             parameters,
             self.UNIQUE_FIELD,
             context)
         if unique_field is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.UNIQUE_FIELD))
-        
-        density = self.parameterAsDouble(
-            parameters,
-            self.DENSITY,
-            context)
+            raise QgsProcessingException(self.invalidSourceError(parameters, self.UNIQUE_FIELD))     
 
-        if density is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.DENSITY))         
+    # result = isolation(parameters[self.INPUT], unique_field) 
 
-        if not selected:
-            features = input_layer.getFeatures()
-            feature_count = input_layer.featureCount() 
-        else:
-            features = input_layer.getSelectedFeatures()
-            feature_count = input_layer.selectedFeatureCount()
+        isolated_field, max_distance= isolation(parameters[self.INPUT], parameters[self.UNIQUE_FIELD])
         
-        tolerance = 0.1 # for simplify geometry
-        extend = input_layer.sourceExtent()
+        extend = source.sourceExtent()
         y_max = extend.yMaximum()
         y_min = extend.yMinimum()
-        if input_layer.crs().isGeographic():
-            EPSG = int(input_layer.crs().authid().split(':')[-1])
+
+        if source.crs().isGeographic():
+            EPSG = int(source.crs().authid().split(':')[-1])
             proj_crs = CRS.from_epsg(EPSG)
             a=proj_crs.ellipsoid.semi_major_metre
             f=1/proj_crs.ellipsoid.inverse_flattening
@@ -199,33 +170,16 @@ class Skeleton(QgsProcessingAlgorithm):
             N = a/np.sqrt(1-e2*(np.sin((y_min+y_max)/2))**2) # Radius of curvature 1 degree vertical
             M = a*(1-e2)/(1-e2*(np.sin((y_min+y_max)/2))**2)**(3/2.) # Meridian Curvature Radius
             R = np.sqrt(M*N) # Gaussian mean radius
-            theta_density = density/R
-            theta_tolerance = tolerance/R
-            density = format(np.degrees(theta_density),'f') # Radian to degree
-            tolerance = format(np.degrees(theta_tolerance),'f')# Radian to degree
-            # print (density)
-            # print (tolerance)
-        
-        total = 100.0 / feature_count if feature_count else 0
-        if (feature_count<=0): 
-            return {} 
-        else:
-            count = 0
-            mem_layers = []  
-            ids = [f.id() for f in features]
-            for id in ids:
-                input_layer.selectByIds([id])
-                selected_feature = QgsProcessingFeatureSourceDefinition(input_layer.id(), True)
-                ########## Percent of length instead of fixed value
-                mem_layers.append(skeleton(selected_feature, unique_field, density, tolerance))
-                count+=1
-                if feedback.isCanceled():
-                    return {}   
-                feedback.setProgress(int(count * total))        
-            merge = processing.run(
-                'native:mergevectorlayers',
+            theta_max_distance = max_distance/R
+            max_distance = format(np.degrees(theta_max_distance),'f') # Radian to degree
+               
+        isolated = processing.run(
+                'native:extractbyattribute',
                 {
-                    'LAYERS': mem_layers,                
+                    'INPUT': parameters[self.INPUT],   
+                    'FIELD': unique_field ,
+                    'OPERATOR':0, # =
+                    'VALUE': isolated_field,
                     'OUTPUT' : parameters[self.OUTPUT]           
                 },
                 
@@ -236,6 +190,24 @@ class Skeleton(QgsProcessingAlgorithm):
                 # users and handle cancelation requests.
                 context=context,
                 feedback=feedback)
-            del(mem_layers)
-            return {self.OUTPUT: merge['OUTPUT']}      
-
+                
+        circle = processing.run(
+            'native:buffer',
+            {
+                # Here we pass on the original parameter values of INPUT
+                # and BUFFER_OUTPUT to the buffer algorithm.
+                'INPUT': isolated['OUTPUT'],
+                'OUTPUT': parameters['CIRCLE'],
+                'DISTANCE': max_distance,
+                'SEGMENTS': 64,
+                'DISSOLVE': True,
+                'END_CAP_STYLE': 0,
+                'JOIN_STYLE': 0,
+                'MITER_LIMIT': 10
+            },          
+            is_child_algorithm=True,           
+            context=context,
+            feedback=feedback)
+     
+        return {self.OUTPUT: isolated['OUTPUT'],
+                self.CIRCLE: circle['OUTPUT'] }

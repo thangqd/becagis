@@ -101,7 +101,7 @@ def capitalize(string, feature, parent):
   <h4>Example usage</h4>
 
   <ul>
-    <li><span class = function>capitalize</span>(<span class = parameters>'quách đồng thắng''</span>)&rarr; 'Quách đồng thắng'</li>
+    <li><span class = function>capitalize</span>(<span class = parameters>'quách đồng Thắng''</span>)&rarr; 'Quách đồng Thắng'</li>
   </ul>    
   """ 
   return(CAPITALIZE(string))    
@@ -219,5 +219,4 @@ def vni_unicode(string, feature, parent):
   <li><span class = function>vni_unicode</span>(<span class = parameters>''Quaùch Ñoàng Thaéng''</span>)&rarr; 'Quách Đồng Thắng'</li>
   </ul>    
   """
-  return(VNI_UNICODE(string))     
-
+  return(VNI_UNICODE(string))

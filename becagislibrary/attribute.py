@@ -14,6 +14,7 @@ __date__ = '2022-08-25'
 __copyright__ = '(L) 2022 by Thang Quach'
 
 import unicodedata
+from qgis.core import *
 
 #_Unicode, _TCVN3, _VNIWin, _KhongDau
 _Unicode = [
@@ -164,3 +165,42 @@ def vni_unicode(txt):
         txt = txt.replace(u'ô#',u'ô')
         txt = txt.replace(u'Ô#',u'Ô')
     return txt
+
+def Convert(txt,source,target):    
+    result = u''
+    for c in txt:
+        if c in source:
+            idx = source.index(c)
+            if idx >= 0:
+                c = target[idx]
+        result += c
+    return result
+
+def GetEncodeIndex(encodeTxt):
+     return{
+        "Unicode" : _Unicode,
+        "TCVN3" : _TCVN3,
+        "VNI-Windows": _VNIWin,
+        "ANSI (Khong dau)" : _KhongDau,
+    }.get(encodeTxt,_Unicode)
+
+def GetCaseIndex(cText):
+    return{
+        0: "upper",
+        1: "lower",
+        2: "capitalize",
+        3 : "title",
+    }.get(cText, "None")
+
+def ChangeCase(str, caseIndex):
+    result = u''
+    # Character Case-setting
+    if caseIndex == "upper":
+        result = str.upper()
+    elif caseIndex == "lower":
+        result = str.lower()
+    elif caseIndex == "capitalize":
+        result = str.capitalize()
+    elif caseIndex == "title":
+        result = str.title()
+    return result
