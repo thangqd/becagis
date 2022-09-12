@@ -19,8 +19,17 @@
     <li>         
       <a href="#vector">Vector</a>     
       <ul>
-        <li><a href="#create-antipodal-layer">Create antipodal layer</a></li>
+        <li><a href="#antipodal-layer">Antipodal layer</a></li>
         <li><a href="#split-polygon">Split Polygon</a></li>
+        <li><a href="#closest-farthest">The closest and farthest pair of Points</a></li>
+        <li><a href="#isolation">The most isololated point of a point set</a></li>
+        <li><a href="#lec">The largest empty circle of a point set</a></li>
+        <li><a href="#skeleton">Skeleton/ Medial Axis of Polygons</a></li>
+      </ul>
+       <li>         
+      <a href="#attribute">Attribute</a>     
+      <ul>
+        <li><a href="#vietnamese-font-converter">Vietnamese Font Converter</a></li>
       </ul>
   </ol>
 </details>
@@ -28,7 +37,7 @@
 
 ## Vector
 
-### Create antipodal layer
+### Antipodal layer
 
 The antipodes of any place on Earth are distant from it by 180° of longitude and as many degrees to the North of the equator as the original is to the South (or vice versa).
 <div align="center">
@@ -44,4 +53,38 @@ If the coordinates (longitude and latitude) of a point on the Earth’s surface 
 Split Polygon layer into almost equal parts using Voronoi Diagram
 <div align="center">
   <img src="images/tutorial/vect_split_polygon.gif">
+</div>
+
+### Closest-farthest
+
+The closest and farthest pair of Points
+<div align="center">
+  <img src="images/tutorial/vect_closestfarthest.png">
+</div>
+
+### isolation
+
+The most isololated point of a point set
+<div align="center">
+  <img src="images/tutorial/vect_isolation.png">
+</div>
+
+### lec
+
+The largest empty circle of a point set
+<div align="center">
+  <img src="images/tutorial/vect_lec.png">
+</div>
+
+### Skeleton
+
+Skeleton/ Medial Axis of Polygons
+<div align="center">
+  <img src="images/tutorial/vect_skeleton.png">
+</div>
+
+### Vietnamese Font Converter
+Vietnamese Font Converter
+<div align="center">
+  <img src="images/att_fontconvert.png">
 </div>
