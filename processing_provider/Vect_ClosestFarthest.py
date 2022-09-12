@@ -32,7 +32,6 @@ from becagistools.becagislibrary.imgs import Imgs
 from becagistools.becagislibrary.voronoi import *
 
 import processing
-from qgis.processing import alg
 import numpy as np
 from pyproj.crs import CRS
 import os

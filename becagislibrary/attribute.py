@@ -82,6 +82,10 @@ def unaccent(text):
     return result
 #unaccent('Quách Đồng Thắng, Krč,Koloměřice,Údraž,Poněšice,Hvožďany,Myšenec')
 
+def swapcase(text):	
+    return text.swapcase()    
+    #swapcase('Quách Đồng Thắng')
+
 def tcvn3_unicode (txt):
     result = u''
     if txt != None:
@@ -178,29 +182,45 @@ def Convert(txt,source,target):
 
 def GetEncodeIndex(encodeTxt):
      return{
-        "Unicode" : _Unicode,
-        "TCVN3" : _TCVN3,
-        "VNI-Windows": _VNIWin,
-        "ANSI (Khong dau)" : _KhongDau,
-    }.get(encodeTxt,_Unicode)
+        'Unicode' : _Unicode,
+        'TCVN3' : _TCVN3,
+        'VNI-Windows': _VNIWin,
+        'ANSI (Khong dau)' : _KhongDau
+    }.get(encodeTxt) 
 
-def GetCaseIndex(cText):
+def GetCaseIndex(caseText):
     return{
-        0: "upper",
-        1: "lower",
-        2: "capitalize",
-        3 : "title",
-    }.get(cText, "None")
+        0: None,
+        1: 'UPPER',
+        2: 'lower',
+        3: 'Capitalize Each Word',
+        4: 'Sentence case',
+        5: 'sWAP Case'
+    }.get(caseText) 
 
 def ChangeCase(str, caseIndex):
-    result = u''
+    result = str
     # Character Case-setting
-    if caseIndex == "upper":
+    if caseIndex == 'UPPER':
         result = str.upper()
-    elif caseIndex == "lower":
+    elif caseIndex == 'lower':
         result = str.lower()
-    elif caseIndex == "capitalize":
+    elif caseIndex == 'Sentence case':
         result = str.capitalize()
-    elif caseIndex == "title":
+    elif caseIndex == 'Capitalize Each Word':
         result = str.title()
+    elif caseIndex ==  'sWAP Case':
+        result=str.swapcase()
     return result
+    
+def convertfont(text, source_font, target_font, case):
+    converted_text = text
+    if (source_font != None) and (target_font != None) and (source_font !=  target_font):   
+        if text != None:            
+            if (source_font == _VNIWin) and (target_font ==_Unicode):
+                converted_text = vni_unicode(text)
+            else: converted_text = Convert(text,source_font,target_font)                   
+    # Change Character Case                            
+    if case !=None:
+        converted_text = ChangeCase(converted_text, case)                        
+    return 	converted_text

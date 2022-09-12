@@ -35,7 +35,8 @@ from becagistools.becagislibrary.attribute import (tcvn3_unicode as TCVN3_UNICOD
                                                    vni_unicode as VNI_UNICODE,
                                                    unicode_vni as UNICODE_VNI,
                                                    capitalize as CAPITALIZE,
-                                                   unaccent as UNACCENT)
+                                                   unaccent as UNACCENT,
+                                                   swapcase as SWAPCASE)
 from becagistools.becagislibrary.imgs import Imgs
 group_name = 'BecaGIS Tools'
 
@@ -141,7 +142,7 @@ def unaccent(string, feature, parent):
     font-style:italic
     }
   </style>
-  Convert unicode text to unacceted.
+  Convert text to unaccented.
   <h4>Syntax</h4>    
     <li><span class = function>unaccent</span>(<span class = parameters>string</span>)</li>
   <h4>Example usage</h4>
@@ -220,3 +221,26 @@ def vni_unicode(string, feature, parent):
   </ul>    
   """
   return(VNI_UNICODE(string))
+
+@qgsfunction(args='auto', group=group_name)
+def swapcase(string, feature, parent):
+  """<style type="text/css">
+    .function {
+    color: #05688f;
+    font-weight: bold;
+    }
+    .parameters {
+    color: red;
+    font-style:italic
+    }
+  </style>
+  sWAP Case of input text
+  <h4>Syntax</h4>    
+    <li><span class = function>swapcase</span>(<span class = parameters>string</span>)</li>
+  <h4>Example usage</h4>
+
+  <ul>
+    <li><span class = function>swapcase</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'qUÁCH đỒNG tHẮNG'</li>
+  </ul>    
+  """  
+  return(SWAPCASE(string))
