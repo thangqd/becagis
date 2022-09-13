@@ -11,7 +11,7 @@
 ## Descriptions
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  <summary>BecaGIS Processing Tools for QGIS</summary>
+  <summary>BecaGIS GeoProcessing Tools for QGIS</summary>
   <div align="center">
   <img src="images/tutorial/vect_voronoi.png">
 </div>
