@@ -102,33 +102,33 @@ def capitalize(string, feature, parent):
   <h4>Example usage</h4>
 
   <ul>
-    <li><span class = function>capitalize</span>(<span class = parameters>'quách đồng Thắng''</span>)&rarr; 'Quách đồng Thắng'</li>
+    <li><span class = function>capitalize</span>(<span class = parameters>'quách đồng thắng''</span>)&rarr; 'Quách đồng thắng'</li>
   </ul>    
   """ 
   return(CAPITALIZE(string))    
 
-
 @qgsfunction(args='auto', group=group_name)
-def tcvn3_unicode(string, feature, parent):
-    """<style type="text/css">
-      .function {
-      color: #05688f;
-      font-weight: bold;
-      }
-      .parameters {
-      color: red;
-      font-style:italic
-      }
-    </style>
-    Convert TCVN3 to Unicode.
-    <h4>Syntax</h4>    
-      <li><span class = function>tcvn3_unicode</span>(<span class = parameters>string</span>)</li>
-    <h4>Example usage</h4> 
-    <ul>
-      <li><span class = function>tcvn3_unicode</span>(<span class = parameters>'Qu¸ch §ång Th¾ng'</span>)&rarr; 'Quách Đồng Thắng'</li>
-    </ul>    
-    """ 
-    return(TCVN3_UNICODE(string)) 
+def swapcase(string, feature, parent):
+  """<style type="text/css">
+    .function {
+    color: #05688f;
+    font-weight: bold;
+    }
+    .parameters {
+    color: red;
+    font-style:italic
+    }
+  </style>
+  sWAP Case of input text
+  <h4>Syntax</h4>    
+    <li><span class = function>swapcase</span>(<span class = parameters>string</span>)</li>
+  <h4>Example usage</h4>
+
+  <ul>
+    <li><span class = function>swapcase</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'qUÁCH đỒNG tHẮNG'</li>
+  </ul>    
+  """  
+  return(SWAPCASE(string))
 
 @qgsfunction(args='auto', group=group_name)
 def unaccent(string, feature, parent):
@@ -152,6 +152,28 @@ def unaccent(string, feature, parent):
   </ul>    
   """  
   return(UNACCENT(string))     
+
+@qgsfunction(args='auto', group=group_name)
+def tcvn3_unicode(string, feature, parent):
+    """<style type="text/css">
+      .function {
+      color: #05688f;
+      font-weight: bold;
+      }
+      .parameters {
+      color: red;
+      font-style:italic
+      }
+    </style>
+    Convert TCVN3 to Unicode.
+    <h4>Syntax</h4>    
+      <li><span class = function>tcvn3_unicode</span>(<span class = parameters>string</span>)</li>
+    <h4>Example usage</h4> 
+    <ul>
+      <li><span class = function>tcvn3_unicode</span>(<span class = parameters>'Qu¸ch §ång Th¾ng'</span>)&rarr; 'Quách Đồng Thắng'</li>
+    </ul>    
+    """ 
+    return(TCVN3_UNICODE(string)) 
 
 @qgsfunction(args='auto', group=group_name)
 def unicode_tcvn3(string, feature, parent):
@@ -221,26 +243,3 @@ def vni_unicode(string, feature, parent):
   </ul>    
   """
   return(VNI_UNICODE(string))
-
-@qgsfunction(args='auto', group=group_name)
-def swapcase(string, feature, parent):
-  """<style type="text/css">
-    .function {
-    color: #05688f;
-    font-weight: bold;
-    }
-    .parameters {
-    color: red;
-    font-style:italic
-    }
-  </style>
-  sWAP Case of input text
-  <h4>Syntax</h4>    
-    <li><span class = function>swapcase</span>(<span class = parameters>string</span>)</li>
-  <h4>Example usage</h4>
-
-  <ul>
-    <li><span class = function>swapcase</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'qUÁCH đỒNG tHẮNG'</li>
-  </ul>    
-  """  
-  return(SWAPCASE(string))

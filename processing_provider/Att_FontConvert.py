@@ -71,7 +71,7 @@ class FontConvert(QgsProcessingAlgorithm):
 
     txt_en = 'Vietnamese Font Converter'
     txt_vi = 'Vietnamese Font Converter'
-    figure = 'images/tutorial/att_fontconvert.png'
+    figure = 'images/att_fontconvert.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW
