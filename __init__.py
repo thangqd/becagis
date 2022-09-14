@@ -2,7 +2,7 @@
 
 """
 /***************************************************************************
- becagistools
+ becagis
                                  A QGIS plugin
  Tools for Geoprocessing in QGIS.
                               -------------------
@@ -30,11 +30,11 @@ __copyright__ = '(L) 2022 by Thang Quach'
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load becagistools class from file becagistools.
+    """Load becagis class from file becagis.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .becagistools import becagistoolsPlugin
-    return becagistoolsPlugin()
+    from .becagis import becagisPlugin
+    return becagisPlugin()

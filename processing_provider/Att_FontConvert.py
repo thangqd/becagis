@@ -25,8 +25,8 @@ from qgis.core import (QgsApplication,
                        QgsProcessingAlgorithm,
                        QgsProcessingParameterFeatureSink)
 
-from becagistools.becagislibrary.imgs import Imgs
-import becagistools.becagislibrary.attribute as attribute
+from becagis.becagislibrary.imgs import Imgs
+import becagis.becagislibrary.attribute as attribute
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant

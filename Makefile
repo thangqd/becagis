@@ -1,5 +1,5 @@
 #/***************************************************************************
-# becagistools
+# becagis
 #
 # BecaGIS GeoProcessing Tools
 #							 -------------------
@@ -38,13 +38,13 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	becagistools.py 
+	becagis.py 
 
-PLUGINNAME = becagistools
+PLUGINNAME = becagis
 
 PY_FILES = \
 	__init__.py \
-	becagistools.py 
+	becagis.py 
 
 UI_FILES = 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# becagistools documentation build configuration file, created by
+# becagis documentation build configuration file, created by
 # sphinx-quickstart.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'becagistools'
+project = u'becagis'
 copyright = u'2022, Thang QUach'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -178,7 +178,7 @@ htmlhelp_basename = 'TemplateClassdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'becagistools.tex', u'becagistools Documentation',
+  ('index', 'becagis.tex', u'becagis Documentation',
    u'Thang Quach', 'manual'),
 ]
 
@@ -211,6 +211,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'TemplateClass', u'becagistools Documentation',
+    ('index', 'TemplateClass', u'becagis Documentation',
      [u'Thang Quach'], 1)
 ]

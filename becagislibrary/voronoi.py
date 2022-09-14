@@ -61,11 +61,16 @@ def splitpolygon(layer, parts,random_points):
 
 def skeleton(layer, field, density, tolerance):		
     ## create skeleton/ media axis 
-    parameters3 = {'INPUT': layer,
-                   'DISTANCE' :	density,
-                   'OUTPUT' : "memory:points"} 
-    points = processing.run('qgis:pointsalonglines', parameters3)	
-     
+    if (density != 0):
+        parameters3 = {'INPUT': layer,
+                    'DISTANCE' :	density,
+                    'OUTPUT' : "memory:points"} 
+        points = processing.run('qgis:pointsalonglines', parameters3)
+    else: 
+        parameters3 = {'INPUT': layer,
+                    'OUTPUT' : "memory:points"} 
+        points = processing.run('qgis:extractvertices', parameters3)
+        
     parameters4 = {'INPUT': points['OUTPUT'],
                     'BUFFER' : 0, 'OUTPUT' : 'memory:voronoipolygon'} 
     voronoipolygon = processing.run('qgis:voronoipolygons', parameters4)
@@ -109,7 +114,7 @@ def skeleton(layer, field, density, tolerance):
        
     parameter11 = {'INPUT':medialaxis_dissolve['OUTPUT'],
                     'METHOD' : 0,
-                    'TOLERANCE' : tolerance, # 0.1m
+                    'TOLERANCE' : tolerance, 
                     'OUTPUT':  "memory:simplify"}
     simplify = processing.run('qgis:simplifygeometries',parameter11)    
 
@@ -122,7 +127,7 @@ def skeleton(layer, field, density, tolerance):
                     'ANGLE' : 30,
                     'TYPE' : 1, # Keep the attribute of the longest line
                     'OUTPUT':  "memory:skeleton"}
-    skeleton = processing.run('becagistools:directionalmerge',parameter13)    
+    skeleton = processing.run('becagis:directionalmerge',parameter13)    
  
     output = skeleton['OUTPUT']
     return output

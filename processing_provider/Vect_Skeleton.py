@@ -29,8 +29,8 @@ from qgis.PyQt.QtCore import QCoreApplication
 #                        QgsProcessingParameterFeatureSource,
 #                        QgsProcessingParameterFeatureSink)
 from qgis.core import *
-from becagistools.becagislibrary.imgs import Imgs
-from becagistools.becagislibrary.voronoi import *
+from becagis.becagislibrary.imgs import Imgs
+from becagis.becagislibrary.voronoi import *
 
 import processing
 from qgis.processing import alg
@@ -122,11 +122,11 @@ class Skeleton(QgsProcessingAlgorithm):
         self.addParameter(
         QgsProcessingParameterNumber(
             self.DENSITY,
-            self.tr('Density (m)', 'Mật độ điểm'),
+            self.tr('Density (m) - Default = 0 for nearly regular shapes', 'Mật độ điểm'),
             type=QgsProcessingParameterNumber.Double, 
-            minValue=0.1, 
-            maxValue=100.0, 
-            defaultValue=1.0
+            minValue=0, 
+            maxValue=100000, 
+            defaultValue=0
             )
         )
 
@@ -201,9 +201,10 @@ class Skeleton(QgsProcessingAlgorithm):
             R = np.sqrt(M*N) # Gaussian mean radius
             theta_density = density/R
             theta_tolerance = tolerance/R
-            density = format(np.degrees(theta_density),'f') # Radian to degree
+            if (density > 0):
+                density = format(np.degrees(theta_density),'f') # Radian to degree
             tolerance = format(np.degrees(theta_tolerance),'f')# Radian to degree
-            # print (density)
+            print (density)
             # print (tolerance)
         
         total = 100.0 / feature_count if feature_count else 0

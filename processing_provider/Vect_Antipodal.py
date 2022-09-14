@@ -29,8 +29,8 @@ from qgis.PyQt.QtCore import QCoreApplication
 #                        QgsProcessingParameterFeatureSource,
 #                        QgsProcessingParameterFeatureSink)
 from qgis.core import *
-from becagistools.becagislibrary.imgs import Imgs
-from becagistools.becagislibrary.latlong import antipode
+from becagis.becagislibrary.imgs import Imgs
+from becagis.becagislibrary.latlong import antipode
 from processing.gui.AlgorithmExecutor import execute_in_place
 import processing
 import os
