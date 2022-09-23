@@ -23,6 +23,7 @@
         <li><a href="#closest-farthest">The closest and farthest pair of points</a></li>
         <li><a href="#isolation">The most isololated point of a point set</a></li>
         <li><a href="#lec">The largest empty circle of a point set</a></li>
+        <li><a href="#mic">The maximum inscribed circle of polygons</a></li>
         <li><a href="#skeleton">Skeleton/ Medial Axis of Polygons</a></li>
         <li><a href="#split-polygon">Split Polygon</a></li>
       </ul>
@@ -84,6 +85,14 @@ The most isololated point of a point set
 The largest empty circle of a point set
 <div align="center">
   <img src="images/readme/vect_lec.png">
+</div>
+
+
+### MIC
+
+The maximum inscribed circle of polygons
+<div align="center">
+  <img src="images/readme/vect_mic.png">
 </div>
 
 ### Skeleton
