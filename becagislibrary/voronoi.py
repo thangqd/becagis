@@ -205,11 +205,8 @@ def lec(layer,field):
                             'OUTPUT':  "memory:singlepart"}
             singlepart = processing.runAndLoadResults('qgis:multiparttosingleparts',parameters0)
             point_layer = singlepart['OUTPUT']  
-            print (point_layer)     
         else:
-            print ('POINT')
             point_layer = temp
-            print (point_layer)
             QgsProject.instance().addMapLayer(point_layer)
    
     parameters1 = {'INPUT': point_layer,

@@ -38,6 +38,7 @@ from becagis.processing_provider.Vect_Skeleton import Skeleton
 from becagis.processing_provider.Vect_Isolation import Isolation
 from becagis.processing_provider.Vect_DirectionalMerge import DirectionalMerge
 from becagis.processing_provider.Vect_Lec import Lec
+from becagis.processing_provider.Vect_Mic import Mic
 from becagis.processing_provider.Vect_ClosestFarthest import ClosestFarthest
 from becagis.processing_provider.Att_FontConvert import FontConvert
 
@@ -63,6 +64,7 @@ class becagisProvider(QgsProcessingProvider):
         self.addAlgorithm(Isolation())
         self.addAlgorithm(DirectionalMerge())
         self.addAlgorithm(Lec())
+        self.addAlgorithm(Mic())
         self.addAlgorithm(ClosestFarthest())        
         self.addAlgorithm(FontConvert())
 

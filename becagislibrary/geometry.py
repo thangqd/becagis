@@ -16,6 +16,18 @@ import processing
 from qgis.core import *
 import numpy as np
 
+def mic(layer,tolerance):
+    parameters1 = {'INPUT': layer,
+                  'TOLERANCE': tolerance, 
+                  'OUTPUT' : 'memory:center'
+                  } 
+    center = processing.run('qgis:poleofinaccessibility', parameters1)
+    # idx =  center.dataProvider().fieldNameIndex("dist_pole")
+    # for feat in center.getFeatures():
+    #     radius = feat[idx]
+    return center['OUTPUT']  
+
+
 def longestline_insidepolygon():
     points = QgsProject.instance().mapLayersByName('point')[0]
     polygons = QgsProject.instance().mapLayersByName('polygon')[0]
