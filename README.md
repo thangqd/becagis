@@ -116,30 +116,22 @@ Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaceented; 
 </div>
 
 ## Expressions
-<style type="text/css">
-.function {
-color: #05688f;
-font-weight: bold;
-}
-.parameters {
-color: red;
-font-style:italic
-}
-</style>
 
 ### antipode
 
 Calculate antipode of a (lat, long) input.
-
-<h4>Syntax</h4>    
-<li><span class = function>antipode</span>(<span class = parameters>lat</span>, <span class = parameters>long</span>) 
-or <span class = function>antipode</span>(<span class = parameters>$y</span>, <span class = parameters>$x</span>) in WGS84 CRS</li>    
+<h4>Syntax</h4>
+<li>
+<code>antipode(lat, long) or antipode($y, $x)</span> in WGS84 CRS</code>
+</li> 
 <h4>Example usage</h4>
-<ul>
-<li><span class = function>antipode</span>(<span class = parameters>10.784229903855978</span>, <span class = parameters>106.70356815497277</span>) &rarr; returns a point geometry</li>
-<li><span class = function>geom_to_wkt</span>(<span class = function>antipode</span>(<span class = parameters>10.784229903855978</span>, <span class = parameters>106.70356815497277</span>)) &rarr; 'Point (-73.29643185 -10.7842299)'</li>
-</ul>
-
+<li>
+<code> antipode(10.784229903855978, 106.70356815497277) → returns a point geometry </code>
+</li>
+<li>
+<code>geom_to_wkt(antipode(10.784229903855978, 106.70356815497277)) → 'Point (-73.29643185 -10.7842299)'</code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/vect_antipode_x.png">
 </div> 
@@ -151,13 +143,15 @@ or <span class = function>antipode</span>(<span class = parameters>$y</span>, <s
 
 Convert text to Capitalized.
 
-<h4>Syntax</h4>    
-  <li><span class = function>capitalize</span>(<span class = parameters>string</span>)</li>
+<h4>Syntax</h4>
+<li>
+<code>capitalize(string)</code>
+</li> 
 <h4>Example usage</h4>
-
-<ul>
-  <li><span class = function>capitalize</span>(<span class = parameters>'quách đồng thắng''</span>)&rarr; 'Quách đồng thắng'</li>
-</ul>   
+<li>
+<code> capitalize('quách đồng thắng'') → 'Quách đồng thắng' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_capitalize.png">
 </div> 
@@ -165,25 +159,32 @@ Convert text to Capitalized.
 
 ### unaccent
 Convert text to unaccented.
-<h4>Syntax</h4>    
-  <li><span class = function>unaccent</span>(<span class = parameters>string</span>)</li>
-<h4>Example usage</h4>
 
-<ul>
-  <li><span class = function>unaccent</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'Quach Dong Thang'</li>
-</ul>    
+<h4>Syntax</h4>
+<li>
+<code>unaccent(string)</code>
+</li> 
+<h4>Example usage</h4>
+<li>
+<code> unaccent('Quách Đồng Thắng') → 'Quach Dong Thang' </code>
+</li>
+<br/>
+
 <div align="center">
   <img src="images/readme/att_unaccent.png">
 </div>
 
 ### tcvn3_unicode
 Convert TCVN3 to Unicode.
-<h4>Syntax</h4>    
-  <li><span class = function>tcvn3_unicode</span>(<span class = parameters>string</span>)</li>
-<h4>Example usage</h4> 
-<ul>
-  <li><span class = function>tcvn3_unicode</span>(<span class = parameters>'Qu¸ch §ång Th¾ng'</span>)&rarr; 'Quách Đồng Thắng'</li>
-</ul>  
+<h4>Syntax</h4>
+<li>
+<code>tcvn3_unicode(string)</code>
+</li> 
+<h4>Example usage</h4>
+<li>
+<code> tcvn3_unicode('Qu¸ch §ång Th¾ng') → 'Quách Đồng Thắng' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_tcnv3_unicode.png">
 </div>
@@ -192,26 +193,30 @@ Convert TCVN3 to Unicode.
 
 Convert Unicode to TCVN3.
 
-<h4>Syntax</h4>    
-  <li><span class = function>unicode_tcvn3</span>(<span class = parameters>string</span>)</li>
+<h4>Syntax</h4>
+<li>
+<code>unicode_tcvn3(string)</code>
+</li> 
 <h4>Example usage</h4>
-
-<ul>
-  <li><span class = function>unicode_tcvn3</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'Qu¸ch §ång Th¾ng'</li>
-</ul>    
+<li>
+<code> unicode_tcvn3('Quách Đồng Thắng') → 'Qu¸ch §ång Th¾ng' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_unicode_tcnv3.png">
 </div>
 
 ### vni_unicode
 Convert VNI Windows to Unicode.
-<h4>Syntax</h4>    
-<li><span class = function>vni_unicode</span>(<span class = parameters>string</span>)</li>
+<h4>Syntax</h4>
+<li>
+<code>vni_unicode(string)</code>
+</li> 
 <h4>Example usage</h4>
-
-<ul>
-<li><span class = function>vni_unicode</span>(<span class = parameters>''Quaùch Ñoàng Thaéng''</span>)&rarr; 'Quách Đồng Thắng'</li>
-</ul>    
+<li>
+<code> vni_unicode('Quaùch Ñoàng Thaéng') → 'Quách Đồng Thắng' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_vni_unicode.png">
 </div>
@@ -221,13 +226,15 @@ Convert VNI Windows to Unicode.
 
 Convert Unicode to VNI Windows.
 
-<h4>Syntax</h4>    
-<li><span class = function>unicode_vni</span>(<span class = parameters>string</span>)</li>
+<h4>Syntax</h4>
+<li>
+<code>unicode_vni(string)</code>
+</li> 
 <h4>Example usage</h4>
-
-<ul>
-<li><span class = function>unicode_vni</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'Quaùch Ñoàng Thaéng'</li>
-</ul>    
+<li>
+<code> unicode_vni('Quách Đồng Thắng') → 'Quaùch Ñoàng Thaéng' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_unicode_vni.png">
 </div>
@@ -237,13 +244,15 @@ Convert Unicode to VNI Windows.
 
 sWAP Case of input text
 
-<h4>Syntax</h4>    
-  <li><span class = function>swapcase</span>(<span class = parameters>string</span>)</li>
+<h4>Syntax</h4>
+<li>
+<code>swapcase(string)</code>
+</li> 
 <h4>Example usage</h4>
-
-<ul>
-  <li><span class = function>swapcase</span>(<span class = parameters>'Quách Đồng Thắng'</span>)&rarr; 'qUÁCH đỒNG tHẮNG'</li>
-</ul>    
+<li>
+<code> swapcase('Quách Đồng Thắng') → 'qUÁCH đỒNG tHẮNG' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_swapcase.png">
 </div> 
