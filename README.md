@@ -149,7 +149,7 @@ Convert text to Capitalized.
 </li> 
 <h4>Example usage</h4>
 <li>
-<code> capitalize('quách đồng thắng'') → 'Quách đồng thắng' </code>
+<code> capitalize('quách đồng thắng') → 'Quách đồng thắng' </code>
 </li>
 <br/>
 <div align="center">
