@@ -107,22 +107,22 @@ class Skeleton(QgsProcessingAlgorithm):
             # QgsProcessingParameterVectorLayer(
             QgsProcessingParameterVectorLayer(
                 self.INPUT,
-                self.tr('Input Polygon Layer', 'Chọn lớp Polygon đầu vào'),
+                self.tr('Input Polygon Layer (please select 1..20 features)', 'Chọn lớp Polygon đầu vào (Chọn 1 đến 20 đối tượng)'),
                 [QgsProcessing.TypeVectorPolygon]
             )
         )           
         
-        self.addParameter(
-           QgsProcessingParameterBoolean(
-                self.SELECTED,
-                self.tr('Selected features only', 'Chỉ những đối tượng được chọn'),
-                defaultValue=False
-            )
-        )
+        # self.addParameter(
+        #    QgsProcessingParameterBoolean(
+        #         self.SELECTED,
+        #         self.tr('Selected features only', 'Chỉ những đối tượng được chọn'),
+        #         defaultValue=True
+        #     )
+        # )
         self.addParameter(
         QgsProcessingParameterNumber(
             self.DENSITY,
-            self.tr('Density (m) - Density = 0 for nearly regular shapes', 'Mật độ điểm'),
+            self.tr('Density (m)', 'Mật độ điểm'),
             type=QgsProcessingParameterNumber.Double, 
             minValue=0, 
             maxValue=100000, 
@@ -156,13 +156,13 @@ class Skeleton(QgsProcessingAlgorithm):
         if input_layer is None:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))   
 
-        selected = self.parameterAsBool(
-            parameters,
-            self.SELECTED,
-            context            
-        )
-        if selected is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.SELECTED))
+        # selected = self.parameterAsBool(
+        #     parameters,
+        #     self.SELECTED,
+        #     context            
+        # )
+        # if selected is None:
+        #     raise QgsProcessingException(self.invalidSourceError(parameters, self.SELECTED))
         
         unique_field = self.parameterAsString(
             parameters,
@@ -178,13 +178,17 @@ class Skeleton(QgsProcessingAlgorithm):
 
         if density is None:
             raise QgsProcessingException(self.invalidSourceError(parameters, self.DENSITY))         
-
-        if not selected:
-            features = input_layer.getFeatures()
-            feature_count = input_layer.featureCount() 
-        else:
-            features = input_layer.getSelectedFeatures()
-            feature_count = input_layer.selectedFeatureCount()
+    
+        # if selected:
+            # features = input_layer.getFeatures()
+            # feature_count = input_layer.featureCount() 
+        features = input_layer.getSelectedFeatures()
+        feature_count = input_layer.selectedFeatureCount()
+        msg = str(feature_count) + ' features selected. Please select 1..20 features to create Skeleton!'
+        if feature_count < 1 or feature_count > 20:
+            raise QgsProcessingException(msg)             
+        # else:            
+        #     raise QgsProcessingException(msg)
         
         tolerance = 0.1 # for simplify geometry
         extend = input_layer.sourceExtent()
@@ -238,5 +242,4 @@ class Skeleton(QgsProcessingAlgorithm):
                 context=context,
                 feedback=feedback)
             del(mem_layers)
-            return {self.OUTPUT: merge['OUTPUT']}      
-
+            return {self.OUTPUT: merge['OUTPUT']}
