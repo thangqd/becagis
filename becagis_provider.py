@@ -75,7 +75,7 @@ class becagisProvider(QgsProcessingProvider):
         return self.tr('BecaGIS Tools')
 
     def icon(self):
-        return QIcon(os.path.dirname(__file__) + '/images/becagis.png')
+        return QIcon(os.path.dirname(__file__) + '/images/becagis_logo.png')
 
     def longName(self):
         """

@@ -2,7 +2,7 @@
 name=BecaGIS
 qgisMinimumVersion=3.10
 description=BecaGIS GeoProcessing, Field Calculation Tools and Expressions
-about= - Vector: Create Antipodal layer, the closest and farthest pair of points, the most isololated point, and the largest empty circle of a point set, the maximum inscribed circle of polygons, the Skeleton/ Medial Axis of Polygons, Split Polygon into (almost) equal parts based on voronoi Diagram; - Attributes: Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaceented; UPPER CASE <--> lower case <--> Capitalize Each Word <--> Sentence case <--> sWAP Case; - Expressions: antipode, capitalize, unaccent, swapcase, tcvn3_unicode, unicode_tcvn3, vni_unicode, unicode_vni
+about= - Vector: Create Antipodal layer, the closest and farthest pair of points, the most isololated point, and the largest empty circle of a point set, the maximum inscribed circle of polygons, the Skeleton/ Medial Axis of Polygons, Split Polygon into (almost) equal parts based on voronoi Diagram; - Attributes: Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaccented; UPPER CASE <--> lower case <--> Capitalize Each Word <--> Sentence case <--> sWAP Case; - Expressions: antipode, capitalize, unaccent, swapcase, tcvn3_unicode, unicode_tcvn3, vni_unicode, unicode_vni
 version=22.9.9
 author=Thang Quach
 owner=thangqd
@@ -11,7 +11,7 @@ tracker=https://github.com/thangqd/becagis/issues
 repository=https://github.com/thangqd/becagis/
 tags=GeoProcessing, expressions, closest pair of points, farthest pair of points, most isolated point, largest empty circle, maximum inscribed circle, antipodes, antipodal layer, skeleton, medial axis, centerline, split polygon, voronoi, Vietnamese font converter
 
-homepage=https://thangqd.github.io
+homepage=https://github.com/thangqd/becagis/
 category=Processing
 icon=images/becagis_logo.png
 

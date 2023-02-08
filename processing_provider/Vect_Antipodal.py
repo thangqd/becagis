@@ -60,7 +60,7 @@ class Antipodal(QgsProcessingAlgorithm):
         return 'antipodal'
 
     def displayName(self):
-        return self.tr('Antipodal', 'Antipodal')
+        return self.tr('Antipodes', 'Antipodes')
 
     def group(self):
         return self.tr('Vector', 'Vector')

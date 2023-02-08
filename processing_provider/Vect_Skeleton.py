@@ -122,11 +122,11 @@ class Skeleton(QgsProcessingAlgorithm):
         self.addParameter(
         QgsProcessingParameterNumber(
             self.DENSITY,
-            self.tr('Density (m) - Default = 0 for nearly regular shapes', 'Mật độ điểm'),
+            self.tr('Density (m) - Density = 0 for nearly regular shapes', 'Mật độ điểm'),
             type=QgsProcessingParameterNumber.Double, 
             minValue=0, 
             maxValue=100000, 
-            defaultValue=0
+            defaultValue=1
             )
         )
 

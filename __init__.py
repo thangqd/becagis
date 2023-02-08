@@ -37,4 +37,7 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .becagis import becagisPlugin
-    return becagisPlugin()
+    # from .becagis_menu import becagis_menu
+
+    return becagisPlugin(iface)
+    # return becagis_menu(iface)

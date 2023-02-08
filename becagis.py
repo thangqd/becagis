@@ -32,11 +32,15 @@ __revision__ = '$Format:%H$'
 import os
 import sys
 import inspect
-
+from PyQt5.QtWidgets import *
 from qgis.core import (QgsProcessingAlgorithm,
                        QgsApplication,
                        QgsExpression)
-from PyQt5.QtCore import QCoreApplication
+# from PyQt5.QtCore import QCoreApplication
+
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+
 from .becagis_provider import becagisProvider
 from .expressions import *
 
@@ -51,9 +55,11 @@ if cmd_folder not in sys.path:
 
 class becagisPlugin(object):
 
-    def __init__(self):
+    def __init__(self, iface):
         self.provider = None
         self.plugin_dir = os.path.dirname(__file__)
+        self.iface = iface
+        self.becagis_menu = None
 
     def initProcessing(self):
         """Init Processing provider for QGIS >= 3.8."""
@@ -66,9 +72,46 @@ class becagisPlugin(object):
         for expr in exprs:
             if not QgsExpression.isFunctionName(expr.name()):
                 QgsExpression.registerFunction(expr)
+        self.becagis_menu = QMenu(QCoreApplication.translate("BecaGIS", "BecaGIS"))
+        self.iface.mainWindow().menuBar().insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.becagis_menu)
+        
+        # OpenData_basemap submenu        
+        self.becagiscloud_menu = QMenu(u'BecaGIS Cloud')	
+        icon = QIcon(os.path.dirname(__file__) + "/images/becagis_logo.png")	
+        self.becagis_add_submenu2(self.becagiscloud_menu, icon)
+
+        
+        # FontConverter Submenu
+        icon = QIcon(os.path.dirname(__file__) + "/images/becagis_logo.png")
+        self.becagiscloud_action = QAction(icon, u'BecaGIS Cloud', self.iface.mainWindow())
+        self.becagiscloud_action.triggered.connect(self.becagiscloud)
+        self.becagiscloud_menu.addAction(self.becagiscloud_action)	
+
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
         for expr in exprs:
             if QgsExpression.isFunctionName(expr.name()):
                 QgsExpression.unregisterFunction(expr.name())
+        if self.becagis_menu != None:
+            self.iface.mainWindow().menuBar().removeAction(self.becagis_menu.menuAction())
+        else:
+            self.iface.removePluginMenu("&BecaGIS", self.becagiscloud_menu.menuAction())          
+
+    def becagis_add_submenu(self, submenu):
+        if self.becagis_menu != None:
+            self.becagis_menu.addMenu(submenu)           
+        else:
+            self.iface.addPluginToMenu("&BecaGIS", submenu.menuAction())
+    
+    def becagis_add_submenu2(self, submenu, icon):
+        if self.becagis_menu != None:
+            submenu.setIcon(QIcon(icon))
+            self.becagis_menu.addMenu(submenu)           
+        else:
+            self.iface.addPluginToMenu("&BecaGIS", submenu.menuAction())  
+    def becagiscloud(self):
+        # dialog = becagis_cloud_dialog(self.iface)
+        # dialog.exec_()  
+        return
+   
