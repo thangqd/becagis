@@ -148,10 +148,10 @@ Convert text to Capitalized.
 <code>capitalize(string)</code>
 </li> 
 <h4>Example usage</h4>
-
-<ul>
-  <li><span class = function>capitalize</span>(<span class = parameters>'quách đồng thắng''</span>)&rarr; 'Quách đồng thắng'</li>
-</ul>   
+<li>
+<code> capitalize('quách đồng thắng'') → 'Quách đồng thắng' </code>
+</li>
+<br/>
 <div align="center">
   <img src="images/readme/att_capitalize.png">
 </div> 
