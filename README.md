@@ -1,9 +1,10 @@
-<!-- PROJECT LOGO -->
+# 
+
 <p align="center">
-    <img src="images/readme/becagis.svg" alt="Logo">
+    <img src="images/readme/becagis.svg" alt="Logo"/>
   <h3 align="center">BecaGIS</h3>
   <p align="center">
-    <b><i>BecaGIS GeoProcessing Tools for QGIS</i><b>
+    <b><i>BecaGIS GeoProcessing Tools for QGIS</i></b>
     <br />
   </p>
 </p>
@@ -13,11 +14,10 @@
 <details open="open">
   <summary>BecaGIS GeoProcessing Tools for QGIS</summary>
   <div align="center">
-  <img src="images/tutorial/vect_voronoi.png">
+  <img src="images/tutorial/vect_voronoi.png"/>
 </div>
   <ol>
-    <li>         
-      <a href="#vector">Vector</a>     
+    <li><a href="#vector">Vector</a></li>
       <ul>
         <li><a href="#antipodal-layer">Antipodal layer</a></li>
         <li><a href="#closest-farthest">The closest and farthest pair of points</a></li>
@@ -27,13 +27,11 @@
         <li><a href="#skeleton">Skeleton/ Medial Axis of Polygons</a></li>
         <li><a href="#split-polygon">Split Polygon</a></li>
       </ul>
-       <li>         
-      <a href="#attribute">Attribute</a>     
+       <li><a href="#attribute">Attribute</a></li>     
       <ul>
         <li><a href="#vietnamese-font-converter">Vietnamese Font Converter</a></li>
       </ul>
-      <li>  
-      <a href="#expressions">Expressions</a>     
+      <li><a href="#expressions">Expressions</a></li>
       <ul>
         <li><a href="#antipode">antipode</a></li>
         <li><a href="#capitalize">capitalize</a></li>
@@ -57,19 +55,19 @@ The antipodes of any place on Earth are distant from it by 180° of longitude an
 If the coordinates (longitude and latitude) of a point on the Earth’s surface are (θ, φ), then the coordinates of the antipodal point are (θ ± 180°,−φ). This relation holds true whether the Earth is approximated as a perfect sphere or as a reference ellipsoid.
 
 <div align="center">
-  <img src="images/tutorial/vect_antipode.png">
+  <img src="images/tutorial/vect_antipode.png"/>
 </div>
 
 
 <div align="center">
-  <img src="images/readme/vect_antipodal_layer.png">
+  <img src="images/readme/vect_antipodal_layer.png"/>
 </div>
 
 ### Closest-farthest
 
 The closest and farthest pair of Points
 <div align="center">
-  <img src="images/readme/vect_closest_farthest.png">
+  <img src="images/readme/vect_closest_farthest.png"/>
 </div>
 
 
@@ -77,14 +75,14 @@ The closest and farthest pair of Points
 
 The most isololated point of a point set
 <div align="center">
-  <img src="images/readme/vect_isolation.png">
+  <img src="images/readme/vect_isolation.png"/>
 </div>
 
 ### LEC
 
 The largest empty circle of a point set
 <div align="center">
-  <img src="images/readme/vect_lec.png">
+  <img src="images/readme/vect_lec.png"/>
 </div>
 
 
@@ -92,27 +90,27 @@ The largest empty circle of a point set
 
 The maximum inscribed circle of polygons
 <div align="center">
-  <img src="images/readme/vect_mic.png">
+  <img src="images/readme/vect_mic.png"/>
 </div>
 
 ### Skeleton
 
 Skeleton/ Medial Axis of Polygons (Output should be manually refined)
 <div align="center">
-  <img src="images/readme/vect_skeleton.png">
+  <img src="images/readme/vect_skeleton.png"/>
 </div>
 
 ### Split Polygon
 
 Split Polygon layer into almost equal parts using Voronoi Diagram
 <div align="center">
-  <img src="images/readme/vect_split_polygon.png">
+  <img src="images/readme/vect_split_polygon.png"/>
 </div>
 
 ### Vietnamese Font Converter
 Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaceented; UPPER CASE <--> lower case <--> Capitalize Each Word <--> Sentence case <--> sWAP Case
 <div align="center">
-  <img src="images/readme/att_fontconvert.png">
+  <img src="images/readme/att_fontconvert.png"/>
 </div>
 
 ## Expressions
@@ -122,7 +120,7 @@ Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaceented; 
 Calculate antipode of a (lat, long) input.
 <h4>Syntax</h4>
 <li>
-<code>antipode(lat, long) or antipode($y, $x)</span> in WGS84 CRS</code>
+<code>antipode(lat, long) or antipode($y, $x) in WGS84 CRS</code>
 </li> 
 <h4>Example usage</h4>
 <li>
@@ -133,10 +131,10 @@ Calculate antipode of a (lat, long) input.
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/vect_antipode_x.png">
+  <img src="images/readme/vect_antipode_x.png"/>
 </div> 
 <div align="center">
-  <img src="images/readme/vect_antipode_y.png">
+  <img src="images/readme/vect_antipode_y.png"/>
 </div> 
 
 ### capitalize
@@ -153,7 +151,7 @@ Convert text to Capitalized.
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/att_capitalize.png">
+  <img src="images/readme/att_capitalize.png"/>
 </div> 
        
 
@@ -171,7 +169,7 @@ Convert text to unaccented.
 <br/>
 
 <div align="center">
-  <img src="images/readme/att_unaccent.png">
+  <img src="images/readme/att_unaccent.png"/>
 </div>
 
 ### tcvn3_unicode
@@ -186,7 +184,7 @@ Convert TCVN3 to Unicode.
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/att_tcnv3_unicode.png">
+  <img src="images/readme/att_tcnv3_unicode.png"/>
 </div>
 
 ### unicode_tcvn3
@@ -203,7 +201,7 @@ Convert Unicode to TCVN3.
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/att_unicode_tcnv3.png">
+  <img src="images/readme/att_unicode_tcnv3.png"/>
 </div>
 
 ### vni_unicode
@@ -218,7 +216,7 @@ Convert VNI Windows to Unicode.
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/att_vni_unicode.png">
+  <img src="images/readme/att_vni_unicode.png"/>
 </div>
 
 
@@ -236,7 +234,7 @@ Convert Unicode to VNI Windows.
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/att_unicode_vni.png">
+  <img src="images/readme/att_unicode_vni.png"/>
 </div>
 
 
@@ -254,5 +252,5 @@ sWAP Case of input text
 </li>
 <br/>
 <div align="center">
-  <img src="images/readme/att_swapcase.png">
+  <img src="images/readme/att_swapcase.png"/>
 </div> 
