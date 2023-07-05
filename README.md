@@ -1,18 +1,26 @@
 # 
-
 <p align="center">
     <img src="images/readme/becagis.svg" alt="Logo"/>
   <h3 align="center">BecaGIS</h3>
   <p align="center">
-    <b><i>BecaGIS GeoProcessing Tools for QGIS</i></b>
+    <b><i>⚙️BecaGIS GeoProcessing Tools for QGIS</i></b>
     <br />
   </p>
 </p>
 
-## Descriptions
+## ✅How to install
+
+### In QGIS, go to menu Plugins 👉 Manage and Install Plugins...👉Search 'BecaGIS' 👉 Install Plugin
+
+<div align="center">
+  <img src="images/readme/becagis_install.png" align="center"/>
+</div>
+
+
+## ✅How to use
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  <summary>BecaGIS GeoProcessing Tools for QGIS</summary>
+  <summary>⚙️BecaGIS GeoProcessing Tools for QGIS</summary>
   <div align="center">
   <img src="images/tutorial/vect_voronoi.png"/>
 </div>
@@ -46,7 +54,7 @@
 </details>
 
 
-## Vector
+## 🔲Vector
 
 ### Antipodal layer
 
@@ -107,13 +115,13 @@ Split Polygon layer into almost equal parts using Voronoi Diagram
   <img src="images/readme/vect_split_polygon.png"/>
 </div>
 
-### Vietnamese Font Converter
+### 📋Vietnamese Font Converter
 Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaceented; UPPER CASE <--> lower case <--> Capitalize Each Word <--> Sentence case <--> sWAP Case
 <div align="center">
   <img src="images/readme/att_fontconvert.png"/>
 </div>
 
-## Expressions
+## 🧮Expressions
 
 ### antipode
 
