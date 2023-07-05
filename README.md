@@ -11,6 +11,7 @@
 ## ✅How to install
 
 ### In QGIS, go to menu Plugins 👉 Manage and Install Plugins...👉Search 'BecaGIS' 👉 Install Plugin
+#### [BecaGIS Plugin on QGIS Plugin Repo](https://plugins.qgis.org/plugins/becagis/)
 
 <div align="center">
   <img src="images/readme/becagis_install.png" align="center"/>
