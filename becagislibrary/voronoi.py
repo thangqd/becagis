@@ -169,7 +169,7 @@ def isolation(layer, field):
     d.setEllipsoid(QgsProject.instance().ellipsoid())
 
     for feature in join_layer.getFeatures():
-        join_layer.changeAttributeValue(feature.id(), idx,d.convertLengthMeasurement(d.measureLength(feature.geometry()), 1)*1000)
+        join_layer.changeAttributeValue(feature.id(), idx,d.convertLengthMeasurement(d.measureLength(feature.geometry()), QgsUnitTypes.DistanceMeters))
     join_layer.commitChanges()
 
     parameters6 = {'INPUT':join_layer,

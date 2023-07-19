@@ -185,7 +185,7 @@ class Skeleton(QgsProcessingAlgorithm):
         features = input_layer.getSelectedFeatures()
         feature_count = input_layer.selectedFeatureCount()
         msg = str(feature_count) + ' features selected. Please select 1..20 features to create Skeleton!'
-        if feature_count < 1 or feature_count > 20:
+        if feature_count < 1 or feature_count > 100:
             raise QgsProcessingException(msg)             
         # else:            
         #     raise QgsProcessingException(msg)

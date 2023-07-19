@@ -160,7 +160,7 @@ class ClosestFarthest(QgsProcessingAlgorithm):
         fieldnumber =closest.fields().count()    
         for feature in  closest.getFeatures():   
             d = QgsDistanceArea()
-            length = d.convertLengthMeasurement(d.measureLength(feature.geometry()),0) #convert to meters
+            length = d.convertLengthMeasurement(d.measureLength(feature.geometry()),QgsUnitTypes.DistanceMeters) #convert to meters
             closest.changeAttributeValue(feature.id(), fieldnumber-1,length )
         closest.commitChanges()     
         
@@ -192,7 +192,7 @@ class ClosestFarthest(QgsProcessingAlgorithm):
         fieldnumber =farthest.fields().count()    
         for feature in  farthest.getFeatures():   
             d = QgsDistanceArea()
-            length = d.convertLengthMeasurement(d.measureLength(feature.geometry()),0) #convert to meters
+            length = d.convertLengthMeasurement(d.measureLength(feature.geometry()),QgsUnitTypes.DistanceMeters) #convert to meters
             farthest.changeAttributeValue(feature.id(), fieldnumber-1,length )  
         farthest.commitChanges()
 
