@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <p align="center">
-    <img src="images/becagis_logo.png" width="100" alt="Logo">
+    <img src="images/becagis_logo.png" alt="Logo">
   <h3 align="center">BecaGIS</h3>
   <p align="center">
     <b><i>BecaGIS GeoProcessing Tools for QGIS</i><b>
