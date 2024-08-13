@@ -33,6 +33,9 @@ from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
 from becagis.processing_provider.Vect_Antipodal import Antipodal
+from becagis.processing_provider.Vect_Reversed_X import Reversed_X
+from becagis.processing_provider.Vect_Reversed_Y import Reversed_Y
+from becagis.processing_provider.Vect_Swap_XY import Swap_XY
 from becagis.processing_provider.Vect_SplitPolygon import SplitPolygon
 from becagis.processing_provider.Vect_Skeleton import Skeleton
 from becagis.processing_provider.Vect_Isolation import Isolation
@@ -59,6 +62,9 @@ class becagisProvider(QgsProcessingProvider):
 
     def loadAlgorithms(self):
         self.addAlgorithm(Antipodal())
+        self.addAlgorithm(Reversed_X())
+        self.addAlgorithm(Reversed_Y())
+        self.addAlgorithm(Swap_XY())
         self.addAlgorithm(SplitPolygon())
         self.addAlgorithm(Skeleton())
         self.addAlgorithm(Isolation())

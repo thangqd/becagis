@@ -19,3 +19,18 @@ def antipode(lat,lon):
         antipode_lon = lon + 180 
     else: antipode_lon = lon - 180  
     return (antipode_lat,antipode_lon)
+
+def reversed_y(y,x):
+    reversed_y = - y
+    reversed_x = x
+    return (reversed_y,reversed_x)
+
+def reversed_x(y,x):
+    reversed_y = y
+    if x< 0:
+        reversed_x = x + 180 
+    else: reversed_x = x - 180  
+    return (reversed_y,reversed_x)
+
+def swap_xy(y,x):
+    return (x,y)
