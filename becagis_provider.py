@@ -36,6 +36,9 @@ from becagis.processing_provider.Vect_Antipodal import Antipodal
 from becagis.processing_provider.Vect_Reversed_X import Reversed_X
 from becagis.processing_provider.Vect_Reversed_Y import Reversed_Y
 from becagis.processing_provider.Vect_Swap_XY import Swap_XY
+
+from becagis.processing_provider.Vect_Quadrant import Quadrant
+
 from becagis.processing_provider.Vect_SplitPolygon import SplitPolygon
 from becagis.processing_provider.Vect_Skeleton import Skeleton
 from becagis.processing_provider.Vect_Isolation import Isolation
@@ -43,6 +46,7 @@ from becagis.processing_provider.Vect_DirectionalMerge import DirectionalMerge
 from becagis.processing_provider.Vect_Lec import Lec
 from becagis.processing_provider.Vect_Mic import Mic
 from becagis.processing_provider.Vect_ClosestFarthest import ClosestFarthest
+
 from becagis.processing_provider.Att_FontConvert import FontConvert
 
 class becagisProvider(QgsProcessingProvider):
@@ -62,16 +66,21 @@ class becagisProvider(QgsProcessingProvider):
 
     def loadAlgorithms(self):
         self.addAlgorithm(Antipodal())
+
         self.addAlgorithm(Reversed_X())
         self.addAlgorithm(Reversed_Y())
         self.addAlgorithm(Swap_XY())
+
+        self.addAlgorithm(Quadrant())
+
         self.addAlgorithm(SplitPolygon())
         self.addAlgorithm(Skeleton())
         self.addAlgorithm(Isolation())
         self.addAlgorithm(DirectionalMerge())
         self.addAlgorithm(Lec())
         self.addAlgorithm(Mic())
-        self.addAlgorithm(ClosestFarthest())        
+        self.addAlgorithm(ClosestFarthest())  
+
         self.addAlgorithm(FontConvert())
 
     def id(self):

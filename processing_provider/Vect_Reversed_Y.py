@@ -2,7 +2,7 @@
 
 
 """
-Vect_reverseVertexOrder.py
+Vect_Reversed_Y.py
 ***************************************************************************
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
