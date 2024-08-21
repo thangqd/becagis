@@ -37,7 +37,7 @@ from becagis.processing_provider.Vect_Reversed_X import Reversed_X
 from becagis.processing_provider.Vect_Reversed_Y import Reversed_Y
 from becagis.processing_provider.Vect_Swap_XY import Swap_XY
 
-from becagis.processing_provider.Vect_Quadrant import Quadrant
+from becagis.processing_provider.Vect_Wedge import Wedge
 
 from becagis.processing_provider.Vect_SplitPolygon import SplitPolygon
 from becagis.processing_provider.Vect_Skeleton import Skeleton
@@ -71,7 +71,7 @@ class becagisProvider(QgsProcessingProvider):
         self.addAlgorithm(Reversed_Y())
         self.addAlgorithm(Swap_XY())
 
-        self.addAlgorithm(Quadrant())
+        self.addAlgorithm(Wedge())
 
         self.addAlgorithm(SplitPolygon())
         self.addAlgorithm(Skeleton())

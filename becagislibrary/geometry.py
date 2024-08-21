@@ -15,6 +15,7 @@ __copyright__ = '(L) 2022 by Thang Quach'
 import processing
 from qgis.core import *
 import numpy as np
+import math 
 
 def mic(layer,tolerance):
     parameters1 = {'INPUT': layer,
@@ -27,6 +28,71 @@ def mic(layer,tolerance):
     #     radius = feat[idx]
     return center['OUTPUT']  
 
+import math
+from qgis.core import QgsGeometry, QgsPointXY
+
+from qgis.core import QgsGeometry, QgsPointXY
+
+import math
+from qgis.core import QgsGeometry, QgsPointXY
+
+def wedge_buffer(geometry, outer_radius, inner_radius, num_sectors, azimuth=0, num_segments=72):
+    """
+    Create wedge-shaped buffers around a point geometry for the given number of quadrants,
+    with support for an inner and outer radius, and an optional azimuth (degree from north).
+
+    :param geometry: QgsGeometry of the point around which to create the buffer.
+    :param outer_radius: Outer radius of the wedge buffer.
+    :param inner_radius: Inner radius of the wedge buffer.
+    :param num_sectors: Number of quadrants to create.
+    :param azimuth: Azimuth (degree from north) where the first wedge starts. Default is 0 (north).
+    :param num_segments: Number of segments to use for circle approximation.
+    :return: List of QgsGeometry objects representing the wedge buffers.
+    """
+    # Normalize azimuth to the range 0° to 360°
+    azimuth = azimuth % 360
+
+    # Get the center point of the geometry
+    center = geometry.asPoint()
+    
+    # Calculate the angle range for each quadrant
+    angle_step = 360 / num_sectors
+    
+    wedge_geometries = []
+
+    for quadrant in range(num_sectors):
+        # Calculate the start and end angles for the wedge, adjusted by the azimuth
+        angle_start = azimuth + quadrant * angle_step
+        angle_end = azimuth + (quadrant + 1) * angle_step
+        
+        # Convert start and end angles to radians
+        angle_start_rad = math.radians(angle_start)
+        angle_end_rad = math.radians(angle_end)
+        
+        # Create a list of points for the outer arc of the wedge
+        outer_arc_points = []
+        for i in range(num_segments + 1):
+            angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
+            x = center.x() + outer_radius * math.cos(angle)
+            y = center.y() + outer_radius * math.sin(angle)
+            outer_arc_points.append(QgsPointXY(x, y))
+        
+        # Create a list of points for the inner arc of the wedge (in reverse order)
+        inner_arc_points = []
+        for i in range(num_segments, -1, -1):
+            angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
+            x = center.x() + inner_radius * math.cos(angle)
+            y = center.y() + inner_radius * math.sin(angle)
+            inner_arc_points.append(QgsPointXY(x, y))
+        
+        # Combine the inner and outer arcs to form the wedge polygon
+        wedge_points = outer_arc_points + inner_arc_points
+        
+        # Create the geometry for the wedge buffer
+        wedge_geometry = QgsGeometry.fromPolygonXY([wedge_points])
+        wedge_geometries.append(wedge_geometry)
+
+    return wedge_geometries
 
 def longestline_insidepolygon():
     points = QgsProject.instance().mapLayersByName('point')[0]
