@@ -72,11 +72,11 @@ class Reversed_X(QgsProcessingAlgorithm):
         return self.tr('Reversed X, Reversed Lat').split(',')
 
     def icon(self):
-        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_reversed_X.png'))
+        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_reversed_x.png'))
 
     txt_en = 'Reversed_X Layer'
     txt_vi = 'Reversed_X Layer'
-    figure = 'images/tutorial/vect_Reversed_X.svg'
+    figure = 'images/tutorial/vect_reversed_x.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW

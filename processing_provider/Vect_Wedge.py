@@ -18,10 +18,10 @@ __copyright__ = '(L) 2022, Thang Quach'
 
 
 from qgis.core import (
-    QgsField,  QgsWkbTypes, QgsPropertyDefinition)
+    QgsField, QgsFields, QgsWkbTypes, QgsPropertyDefinition)
 
 from qgis.core import (
-    QgsFeature,
+    QgsFeature,    
     QgsProcessing,
     QgsProcessingParameters,
     QgsProcessingFeatureBasedAlgorithm,
@@ -30,13 +30,10 @@ from qgis.core import (
 from qgis.core import QgsApplication
 
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import QCoreApplication,QVariant, QUrl
-
+from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from becagis.becagislibrary.imgs import Imgs
-from becagis.becagislibrary.geometry import wedge_buffer
+from becagis.becagislibrary.geometry import wedge_buffer, meters_to_geographic_distance
 import os
-from pyproj.crs import CRS
-import numpy as np
 
 
 class Wedge(QgsProcessingFeatureBasedAlgorithm):    
@@ -99,12 +96,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
                     '''
         return self.tr(self.txt_en, self.txt_vi) + footer    
 
-    def helpUrl(self):
-        file = os.path.dirname(__file__) + '/index.html'
-        if not os.path.exists(file):
-            return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
-    
+   
     def inputLayerTypes(self):
         return [QgsProcessing.TypeVectorPoint]
     
@@ -153,7 +145,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             self.tr('Number of Circular Sectors'),
             QgsProcessingParameterNumber.Integer,
             defaultValue=4,
-            minValue=2,
+            minValue=1,
             optional=False)
         param.setIsDynamic(True)
         param.setDynamicPropertyDefinition(QgsPropertyDefinition(
@@ -186,7 +178,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
                 minValue=4,
                 optional=True)
         )    
-               
+
     def prepareAlgorithm(self, parameters, context, feedback):
         self.outer_radius = self.parameterAsDouble(parameters, self.OUTER_RADIUS, context)  
         if self.outer_radius <= 0:
@@ -205,8 +197,8 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             self.inner_radius_property = parameters[self.INNER_RADIUS]                      
 
         self.sectnum = self.parameterAsInt(parameters, self.SECTNUM, context)
-        if self.sectnum <= 2:
-            feedback.reportError('Number of sectors must be greater than 1')
+        if self.sectnum < 1:
+            feedback.reportError('Number of sectors must be greater than 0')
             return False    
         self.sectnum_dyn = QgsProcessingParameters.isDynamic(parameters, self.SECTNUM)
         if self.sectnum_dyn:
@@ -224,25 +216,11 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
         
         source = self.parameterAsSource(parameters, 'INPUT', context)
         
-        src_crs = source.sourceCrs()        
-        extend = source.sourceExtent()
-        y_max = extend.yMaximum()
-        y_min = extend.yMinimum()        
-        if src_crs.isGeographic():
-            EPSG = int(src_crs.authid().split(':')[-1])
-            proj_crs = CRS.from_epsg(EPSG)
-            a = proj_crs.ellipsoid.semi_major_metre
-            f = 1 / proj_crs.ellipsoid.inverse_flattening
-            e2 = f * (2 - f)
-            lat_rad = np.radians((y_min + y_max) / 2)
-            N = a / np.sqrt(1 - e2 * (np.sin(lat_rad)) ** 2)  # Radius of curvature 1 degree vertical
-            M = a * (1 - e2) / (1 - e2 * (np.sin(lat_rad)) ** 2) ** (3 / 2.)  # Meridian Curvature Radius
-            R = np.sqrt(M * N)  # Gaussian mean radius
-            theta_outer_radius = self.outer_radius / R
-            theta_inner_radius = self.inner_radius / R
-            self.outer_radius = np.degrees(theta_outer_radius)  # Radian to degree
-            self.inner_radius = np.degrees(theta_inner_radius)  # Radian to degree
-                      
+        self.src_crs = source.sourceCrs()        
+        self.src_extend = source.sourceExtent()
+        if self.src_crs.isGeographic():
+            self.outer_radius = meters_to_geographic_distance(self.outer_radius, self.src_crs, self.src_extend)
+            self.inner_radius = meters_to_geographic_distance(self.inner_radius, self.src_crs, self.src_extend)
 
         self.total_features = source.featureCount()
         self.num_bad = 0
@@ -253,6 +231,8 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             # Evaluate outer radius
             if self.outer_radius_dyn:
                 outer_rad, e = self.outer_radius_property.valueAsDouble(context.expressionContext(), self.outer_radius)
+                if self.src_crs.isGeographic():
+                    outer_rad = meters_to_geographic_distance(outer_rad, self.src_crs, self.src_extend)
                 if not e or outer_rad < 0:
                     self.num_bad += 1
                     return []
@@ -262,6 +242,8 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             # Evaluate inner radius
             if self.inner_radius_dyn:
                 inner_rad, e = self.inner_radius_property.valueAsDouble(context.expressionContext(), self.inner_radius)
+                if self.src_crs.isGeographic():
+                    inner_rad = meters_to_geographic_distance(inner_rad, self.src_crs, self.src_extend)
                 if not e or inner_rad < 0:
                     self.num_bad += 1
                     return []
@@ -277,7 +259,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
                 sect_num = self.sectnum
 
             if self.azimuth_dyn:
-                azimuth_degree, e = self.outer_radius_property.valueAsDouble(context.expressionContext(), self.azimuth)
+                azimuth_degree, e = self.azimuth_property.valueAsDouble(context.expressionContext(), self.azimuth)
                 if not e:
                     self.num_bad += 1
                     return []
@@ -287,22 +269,35 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             seg_num = self.segnum
 
             # Generate wedge geometries using the evaluated radii
-            geom = feature.geometry()
+            geom = feature.geometry()           
+            attrs = feature.attributes()[:]
             wedge_geoms = wedge_buffer(geom, outer_rad, inner_rad, sect_num, azimuth_degree, seg_num)
             
             wedge_features = []
-            for wedge_geom in wedge_geoms:
-                if wedge_geom.isGeosValid():
-                    wedge_feature = QgsFeature()
-                    wedge_feature.setGeometry(wedge_geom)
-                    wedge_feature.setAttributes(feature.attributes())
-                    wedge_features.append(wedge_feature)
-                else:
-                    feedback.reportError(f"Invalid geometry for feature {feature.id()}")
-                    self.num_bad += 1
+            for wedge in wedge_geoms:
+                wedge_geom = wedge['geometry']
+                wedge_id = wedge['wedge_id']                
+                wedge_feature = QgsFeature()                         
 
+                # Create a new list with the appended wedge_id
+                new_attrs = attrs + [wedge_id]
+                # Debugging output
+                feedback.pushInfo(f"New attributes: {new_attrs}")
+                
+                field_name = 'wedge_id'
+                # fields = QgsFields()
+                fields = feature.fields()
+                # for name in field_names:
+                fields.append(QgsField(field_name, QVariant.Int))  # Adjust type as needed
+                feedback.pushInfo(f"New fields: {fields.names()}")
+                
+                wedge_feature.setFields(fields)
+                wedge_feature.setAttributes(new_attrs)  
+                wedge_feature.setGeometry(wedge_geom) 
+                wedge_features.append(wedge_feature)
+             
             return wedge_features
-
+        
         except Exception as e:
             self.num_bad += 1
             feedback.reportError(f"Error processing feature {feature.id()}: {str(e)}")

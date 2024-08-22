@@ -76,7 +76,7 @@ class Reversed_Y(QgsProcessingAlgorithm):
 
     txt_en = 'Reversed_Y Layer'
     txt_vi = 'Reversed_Y Layer'
-    figure = 'images/tutorial/vect_reversed_y.svg'
+    figure = 'images/tutorial/vect_reversed_y.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW

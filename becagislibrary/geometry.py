@@ -13,9 +13,215 @@ __author__ = 'Thang Quach'
 __date__ = '2022-08-25'
 __copyright__ = '(L) 2022 by Thang Quach'
 import processing
-from qgis.core import *
+from qgis.core import QgsGeometry, QgsPointXY
 import numpy as np
 import math 
+from pyproj.crs import CRS
+
+def meters_to_geographic_distance(distance_meters, src_crs, src_extent):
+        y_max = src_extent.yMaximum()
+        y_min = src_extent.yMinimum()        
+        EPSG = int(src_crs.authid().split(':')[-1])
+        proj_crs = CRS.from_epsg(EPSG)
+        a = proj_crs.ellipsoid.semi_major_metre
+        f = 1 / proj_crs.ellipsoid.inverse_flattening
+        e2 = f * (2 - f)
+        lat_rad = np.radians((y_min + y_max) / 2)
+        N = a / np.sqrt(1 - e2 * (np.sin(lat_rad)) ** 2)  # Radius of curvature 1 degree vertical
+        M = a * (1 - e2) / (1 - e2 * (np.sin(lat_rad)) ** 2) ** (3 / 2.)  # Meridian Curvature Radius
+        R = np.sqrt(M * N)  # Gaussian mean radius
+        theta_distance = distance_meters / R
+        distance_degrees = np.degrees(theta_distance)  # Radian to degree   
+        return distance_degrees
+
+# def wedge_buffer(geometry, outer_radius, inner_radius, num_sectors, azimuth=0, num_segments=36):
+#     """
+#     Create wedge-shaped buffers around a point geometry for the given number of sectors,
+#     with support for an inner and outer radius, and an optional azimuth (degree from north).
+#     If num_sectors is 1, a full circular buffer is created.
+
+#     :param geometry: QgsGeometry of the point around which to create the buffer.
+#     :param outer_radius: Outer radius of the wedge buffer.
+#     :param inner_radius: Inner radius of the wedge buffer.
+#     :param num_sectors: Number of circular sectors.
+#     :param azimuth: Azimuth (degree from north) where the first wedge starts. Default is 0 (north).
+#     :param num_segments: Number of segments to use for circle approximation.
+#     :return: List of QgsGeometry objects representing the wedge buffers.
+#     """
+#     # Get the point geometry
+#     point = geometry.asPoint()
+    
+#     # Initialize the list for storing geometries
+#     wedge_geometries = []    
+#     if num_sectors > 1:
+#         # Normalize azimuth to the range 0° to 360°
+#         azimuth = azimuth % 360
+
+#         # Handle the general case for wedge-shaped buffers
+#         angle_step = 360 / num_sectors
+
+#         for sector in range(num_sectors):
+#             angle_start = azimuth + sector * angle_step
+#             angle_end = azimuth + (sector + 1) * angle_step
+            
+#             angle_start_rad = math.radians(angle_start)
+#             angle_end_rad = math.radians(angle_end)
+            
+#             outer_arc_points = []
+#             for i in range(num_segments + 1):
+#                 angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
+#                 x = point.x() + outer_radius * math.cos(angle)
+#                 y = point.y() + outer_radius * math.sin(angle)
+#                 outer_arc_points.append(QgsPointXY(x, y))
+            
+#             inner_arc_points = []
+#             for i in range(num_segments, -1, -1):
+#                 angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
+#                 x = point.x() + inner_radius * math.cos(angle)
+#                 y = point.y() + inner_radius * math.sin(angle)
+#                 inner_arc_points.append(QgsPointXY(x, y))
+            
+#             wedge_points = outer_arc_points + inner_arc_points
+#             wedge_geometries.append(QgsGeometry.fromPolygonXY([wedge_points]))        
+    
+#     else: #num_sectors = 1
+#           # Create outer and inner rings
+#         outer_ring = []
+#         inner_ring = []
+
+#         # Create outer ring
+#         for i in range(num_segments):
+#             angle = (2 * 3.14159 * i) / num_segments
+#             x = point.x() + outer_radius * math.cos(angle)
+#             y = point.y() + outer_radius * math.sin(angle)
+#             outer_ring.append(QgsPointXY(x, y))
+        
+#         # Create inner ring
+#         for i in range(num_segments):
+#             angle = (2 * 3.14159 * i) / num_segments
+#             x = point.x() + inner_radius * math.cos(angle)
+#             y = point.y() + inner_radius * math.sin(angle)
+#             inner_ring.append(QgsPointXY(x, y))
+
+#         # Close rings
+#         outer_ring.append(outer_ring[0])
+#         inner_ring.append(inner_ring[0])
+
+#         # Create QgsGeometry objects
+#         outer_geom = QgsGeometry.fromPolygonXY([outer_ring])
+#         inner_geom = QgsGeometry.fromPolygonXY([inner_ring])
+        
+#         # Create donut geometry by difference
+#         wedge_geometries.append(outer_geom.difference(inner_geom))
+        
+#     return wedge_geometries
+
+def wedge_buffer(geometry, outer_radius, inner_radius, num_sectors, azimuth=0, num_segments=36):
+    """
+    Create wedge-shaped buffers around a point geometry for the given number of sectors,
+    with support for an inner and outer radius, and an optional azimuth (degree from north).
+    If num_sectors is 1, a full circular buffer is created.
+
+    :param geometry: QgsGeometry of the point around which to create the buffer.
+    :param outer_radius: Outer radius of the wedge buffer.
+    :param inner_radius: Inner radius of the wedge buffer.
+    :param num_sectors: Number of circular sectors.
+    :param azimuth: Azimuth (degree from north) where the first wedge starts. Default is 0 (north).
+    :param num_segments: Number of segments to use for circle approximation.
+    :return: List of dictionaries containing QgsGeometry objects and their wedge_id attributes.
+    """
+    # Validate input
+    if num_sectors <= 0:
+        raise ValueError("Number of sectors must be greater than 0.")
+    
+    # Get the point geometry
+    point = geometry.asPoint()
+    
+    # Initialize the list for storing geometries with wedge_id
+    wedge_geometries = []
+    
+    # Counter for wedge_id
+    wedge_id_counter = 1
+    
+    if num_sectors > 1:
+        # Normalize azimuth to the range 0° to 360°
+        azimuth = azimuth % 360
+
+        # Handle the general case for wedge-shaped buffers
+        angle_step = 360 / num_sectors
+
+        for sector in range(num_sectors):
+            angle_start = azimuth + sector * angle_step
+            angle_end = azimuth + (sector + 1) * angle_step
+            
+            angle_start_rad = math.radians(angle_start)
+            angle_end_rad = math.radians(angle_end)
+            
+            outer_arc_points = []
+            inner_arc_points = []
+            
+            for i in range(num_segments + 1):
+                angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
+                x_outer = point.x() + outer_radius * math.cos(angle)
+                y_outer = point.y() + outer_radius * math.sin(angle)
+                x_inner = point.x() + inner_radius * math.cos(angle)
+                y_inner = point.y() + inner_radius * math.sin(angle)
+                
+                outer_arc_points.append(QgsPointXY(x_outer, y_outer))
+                inner_arc_points.append(QgsPointXY(x_inner, y_inner))
+            
+            # Reverse inner_arc_points to maintain correct winding order
+            inner_arc_points.reverse()
+            
+            wedge_points = outer_arc_points + inner_arc_points
+            wedge_geom = QgsGeometry.fromPolygonXY([wedge_points])
+            
+            # Append dictionary with geometry and wedge_id
+            wedge_geometries.append({
+                'wedge_id': wedge_id_counter,
+                'geometry': wedge_geom
+            })
+            
+            # Increment the wedge_id_counter
+            wedge_id_counter += 1
+    
+    else: # num_sectors == 1
+        # Create outer and inner rings
+        outer_ring = []
+        inner_ring = []
+
+        # Create outer ring
+        for i in range(num_segments):
+            angle = (2 * math.pi * i) / num_segments
+            x = point.x() + outer_radius * math.cos(angle)
+            y = point.y() + outer_radius * math.sin(angle)
+            outer_ring.append(QgsPointXY(x, y))
+        
+        # Create inner ring
+        for i in range(num_segments):
+            angle = (2 * math.pi * i) / num_segments
+            x = point.x() + inner_radius * math.cos(angle)
+            y = point.y() + inner_radius * math.sin(angle)
+            inner_ring.append(QgsPointXY(x, y))
+
+        # Close rings
+        outer_ring.append(outer_ring[0])
+        inner_ring.append(inner_ring[0])
+
+        # Create QgsGeometry objects
+        outer_geom = QgsGeometry.fromPolygonXY([outer_ring])
+        inner_geom = QgsGeometry.fromPolygonXY([inner_ring])
+        
+        # Create donut geometry by difference
+        wedge_geom = outer_geom.difference(inner_geom)
+        
+        # Append dictionary with geometry and wedge_id
+        wedge_geometries.append({
+            'wedge_id': wedge_id_counter,
+            'geometry': wedge_geom
+        })
+        
+    return wedge_geometries
 
 def mic(layer,tolerance):
     parameters1 = {'INPUT': layer,
@@ -27,72 +233,6 @@ def mic(layer,tolerance):
     # for feat in center.getFeatures():
     #     radius = feat[idx]
     return center['OUTPUT']  
-
-import math
-from qgis.core import QgsGeometry, QgsPointXY
-
-from qgis.core import QgsGeometry, QgsPointXY
-
-import math
-from qgis.core import QgsGeometry, QgsPointXY
-
-def wedge_buffer(geometry, outer_radius, inner_radius, num_sectors, azimuth=0, num_segments=72):
-    """
-    Create wedge-shaped buffers around a point geometry for the given number of quadrants,
-    with support for an inner and outer radius, and an optional azimuth (degree from north).
-
-    :param geometry: QgsGeometry of the point around which to create the buffer.
-    :param outer_radius: Outer radius of the wedge buffer.
-    :param inner_radius: Inner radius of the wedge buffer.
-    :param num_sectors: Number of quadrants to create.
-    :param azimuth: Azimuth (degree from north) where the first wedge starts. Default is 0 (north).
-    :param num_segments: Number of segments to use for circle approximation.
-    :return: List of QgsGeometry objects representing the wedge buffers.
-    """
-    # Normalize azimuth to the range 0° to 360°
-    azimuth = azimuth % 360
-
-    # Get the center point of the geometry
-    center = geometry.asPoint()
-    
-    # Calculate the angle range for each quadrant
-    angle_step = 360 / num_sectors
-    
-    wedge_geometries = []
-
-    for quadrant in range(num_sectors):
-        # Calculate the start and end angles for the wedge, adjusted by the azimuth
-        angle_start = azimuth + quadrant * angle_step
-        angle_end = azimuth + (quadrant + 1) * angle_step
-        
-        # Convert start and end angles to radians
-        angle_start_rad = math.radians(angle_start)
-        angle_end_rad = math.radians(angle_end)
-        
-        # Create a list of points for the outer arc of the wedge
-        outer_arc_points = []
-        for i in range(num_segments + 1):
-            angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
-            x = center.x() + outer_radius * math.cos(angle)
-            y = center.y() + outer_radius * math.sin(angle)
-            outer_arc_points.append(QgsPointXY(x, y))
-        
-        # Create a list of points for the inner arc of the wedge (in reverse order)
-        inner_arc_points = []
-        for i in range(num_segments, -1, -1):
-            angle = angle_start_rad + i * (angle_end_rad - angle_start_rad) / num_segments
-            x = center.x() + inner_radius * math.cos(angle)
-            y = center.y() + inner_radius * math.sin(angle)
-            inner_arc_points.append(QgsPointXY(x, y))
-        
-        # Combine the inner and outer arcs to form the wedge polygon
-        wedge_points = outer_arc_points + inner_arc_points
-        
-        # Create the geometry for the wedge buffer
-        wedge_geometry = QgsGeometry.fromPolygonXY([wedge_points])
-        wedge_geometries.append(wedge_geometry)
-
-    return wedge_geometries
 
 def longestline_insidepolygon():
     points = QgsProject.instance().mapLayersByName('point')[0]
