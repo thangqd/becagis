@@ -2,7 +2,7 @@
 
 
 """
-Vect_Wedge.py
+Vect_SpiralWedge.py
 ***************************************************************************
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -34,16 +34,16 @@ from qgis.core import QgsApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant, QCoreApplication
 
-from becagis.becagislibrary.geometry import wedge_buffer, meters_to_geographic_distance
+from becagis.becagislibrary.geometry import spiralwedge_buffer, meters_to_geographic_distance
 from becagis.becagislibrary.imgs import Imgs
 
-
-class Wedge(QgsProcessingFeatureBasedAlgorithm):
+class SpiralWedge(QgsProcessingFeatureBasedAlgorithm):
     """
-    Algorithm to create Wedge Buffers.
+    Algorithm to create SpiralWedge Buffers.
     """
     OUTER_RADIUS = 'OUTER_RADIUS'
     INNER_RADIUS = 'INNER_RADIUS'
+    INCREMENT = 'INCREMENT'
     SECTNUM = 'SECTNUM'
     SEGNUM = 'SEGNUM'
     AZIMUTH = 'AZIMUTH' 
@@ -63,16 +63,16 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
         else:
             return self.translate(string[0])
     def createInstance(self):
-        return Wedge()
+        return SpiralWedge()
 
     def name(self):
-        return 'Wedge Buffers'
+        return 'Spiral Wedge Buffers'
 
     def icon(self):
-        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_wedge.png'))
+        return QIcon(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images/vect_spiralwedge.png'))
     
     def displayName(self):
-        return self.tr('Wedge Buffers', 'Wedge Buffers')
+        return self.tr('Spiral Wedge Buffers', 'Spiral Wedge Buffers')
 
     def group(self):
         return self.tr('Vector', 'Vector')
@@ -81,11 +81,11 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
         return 'vector'
 
     def tags(self):
-        return self.tr('Wedge Buffers, Circle Sectors').split(',')
+        return self.tr('SpiralWedge Buffers, Circle Sectors').split(',')
     
-    txt_en = 'Wedge Buffers'
-    txt_vi = 'Wedge Buffers'
-    figure = 'images/tutorial/vect_wedge.png'
+    txt_en = 'SpiralWedge Buffers'
+    txt_vi = 'SpiralWedge Buffers'
+    figure = 'images/tutorial/vect_spiralwedge.png'
 
     def shortHelpString(self):
         social_BW = Imgs().social_BW
@@ -146,12 +146,28 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             QgsPropertyDefinition.Double))
         param.setDynamicLayerParameterName('INPUT')
         self.addParameter(param)
+
+        param = QgsProcessingParameterNumber(
+            self.INCREMENT,
+            self.tr('Increment percentage for Outer Radius (%)'),
+            QgsProcessingParameterNumber.Double,
+            defaultValue=10,
+            minValue=1,
+            maxValue=100,
+            optional=False)
+        param.setIsDynamic(True)
+        param.setDynamicPropertyDefinition(QgsPropertyDefinition(
+            self.INCREMENT,
+            self.tr('Increment percentage for Outer Radius (%)'),
+            QgsPropertyDefinition.Double))
+        param.setDynamicLayerParameterName('INPUT')
+        self.addParameter(param)
         
         param = QgsProcessingParameterNumber(
             self.SECTNUM,
             self.tr('Number of Circular Sectors'),
             QgsProcessingParameterNumber.Integer,
-            defaultValue=4,
+            defaultValue=16,
             minValue=1,
             optional=False)
         param.setIsDynamic(True)
@@ -179,7 +195,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SEGNUM,
-                self.tr('Number of Wedge Segments'),
+                self.tr('Number of SpiralWedge Segments'),
                 QgsProcessingParameterNumber.Integer,
                 defaultValue=36,
                 minValue=4,
@@ -202,6 +218,14 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
         self.inner_radius_dyn = QgsProcessingParameters.isDynamic(parameters, self.INNER_RADIUS)
         if self.inner_radius_dyn:
             self.inner_radius_property = parameters[self.INNER_RADIUS]                      
+
+        self.increment = self.parameterAsDouble(parameters, self.INCREMENT, context)
+        if self.increment < 1:
+            feedback.reportError('Incerment percentage for outer radisu must be equal or greater than 1')
+            return False         
+        self.increment_dyn = QgsProcessingParameters.isDynamic(parameters, self.INCREMENT)
+        if self.increment_dyn:
+            self.increment_property = parameters[self.INCREMENT]           
 
         self.sectnum = self.parameterAsInt(parameters, self.SECTNUM, context)
         if self.sectnum < 1:
@@ -258,6 +282,16 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             else:
                 inner_rad = self.inner_radius
             
+              
+            if self.increment_dyn:
+                increment_percentage, e = self.sectnum_property.valueAsInt(context.expressionContext(), self.increment)
+                if not e or increment_percentage < 1:
+                    self.num_bad += 1
+                    return []
+            else:
+                increment_percentage = self.increment
+
+
             if self.sectnum_dyn:
                 sect_num, e = self.sectnum_property.valueAsInt(context.expressionContext(), self.sectnum)
                 if not e or sect_num <= 1:
@@ -279,7 +313,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             # Generate wedge geometries using the evaluated radii
             geom = feature.geometry()           
             attrs = feature.attributes()
-            wedge_geoms = wedge_buffer(geom, outer_rad, inner_rad, sect_num, azimuth_degree, seg_num)
+            wedge_geoms = spiralwedge_buffer(geom, outer_rad, inner_rad, sect_num, azimuth_degree, seg_num,increment_percentage)
             
             wedge_features = []
             for wedge in wedge_geoms:

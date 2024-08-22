@@ -38,8 +38,13 @@ from becagis.processing_provider.Vect_Reversed_Y import Reversed_Y
 from becagis.processing_provider.Vect_Swap_XY import Swap_XY
 
 from becagis.processing_provider.Vect_Wedge import Wedge
+from becagis.processing_provider.Vect_SpiralWedge import SpiralWedge
+
 
 from becagis.processing_provider.Vect_SplitPolygon import SplitPolygon
+from becagis.processing_provider.Vect_SplitPolygon_new import SplitPolygon_new
+
+
 from becagis.processing_provider.Vect_Skeleton import Skeleton
 from becagis.processing_provider.Vect_Isolation import Isolation
 from becagis.processing_provider.Vect_DirectionalMerge import DirectionalMerge
@@ -72,8 +77,11 @@ class becagisProvider(QgsProcessingProvider):
         self.addAlgorithm(Swap_XY())
 
         self.addAlgorithm(Wedge())
+        self.addAlgorithm(SpiralWedge())
 
         self.addAlgorithm(SplitPolygon())
+        self.addAlgorithm(SplitPolygon_new())
+
         self.addAlgorithm(Skeleton())
         self.addAlgorithm(Isolation())
         self.addAlgorithm(DirectionalMerge())
