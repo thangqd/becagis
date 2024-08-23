@@ -213,7 +213,7 @@ class SpiralWedge(QgsProcessingFeatureBasedAlgorithm):
 
         self.inner_radius = self.parameterAsDouble(parameters, self.INNER_RADIUS, context)
         if self.outer_radius < 0:
-            feedback.reportError('Inner radius parameter must be equal or greater than 0')
+            feedback.reportError('Inner radius parameter must be equal to or greater than 0')
             return False         
         self.inner_radius_dyn = QgsProcessingParameters.isDynamic(parameters, self.INNER_RADIUS)
         if self.inner_radius_dyn:
@@ -221,7 +221,7 @@ class SpiralWedge(QgsProcessingFeatureBasedAlgorithm):
 
         self.increment = self.parameterAsDouble(parameters, self.INCREMENT, context)
         if self.increment < 1:
-            feedback.reportError('Incerment percentage for outer radisu must be equal or greater than 1')
+            feedback.reportError('Incerment percentage for outer radisu must be equal to or greater than 1 (%)')
             return False         
         self.increment_dyn = QgsProcessingParameters.isDynamic(parameters, self.INCREMENT)
         if self.increment_dyn:

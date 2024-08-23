@@ -13,10 +13,121 @@ __author__ = 'Thang Quach'
 __date__ = '2022-08-25'
 __copyright__ = '(L) 2022 by Thang Quach'
 import processing
-from qgis.core import QgsGeometry, QgsPointXY
+from qgis.core import QgsGeometry, QgsPointXY, QgsVectorLayer,QgsFeature,QgsProcessingFeedback
+# from qgis.core import QgsProject, QgsVectorLayer, QgsFeature, QgsGeometry, QgsPoint, QgsProcessingFeedback
+import qgis.processing as processing
+
 import numpy as np
 import math 
 from pyproj.crs import CRS
+import random
+
+import numpy as np
+import random
+from qgis.core import QgsGeometry, QgsPointXY
+
+def split_polygon(polygon: QgsGeometry, points_number: int, k: int):
+    """
+    Splits a polygon by generating random points, clustering them, 
+    creating Voronoi polygons, and intersecting them with the input polygon.
+
+    Parameters:
+        polygon (QgsGeometry): The input polygon geometry.
+        points_number (int): Number of random points to generate.
+        k (int): Number of clusters to create.
+
+    Returns:
+        list of QgsGeometry: Intersected Voronoi polygons confined within the input polygon.
+    """
+    # Generate random points within the polygon
+    random_points = generate_random_points(polygon, points_number)
+    
+    # Cluster the random points
+    clustered_points, clustered_centroids = k_means(random_points, k)
+    
+    # Create a temporary memory layer for the points
+    # layer = QgsVectorLayer('Point?crs=EPSG:4326', 'temp_points_layer', 'memory')
+    clustered_layer = QgsVectorLayer('Point', 'temp_points_layer', 'memory')
+    provider = clustered_layer.dataProvider()
+
+    # Add points to the clustered_layer
+    features = []
+    for point in clustered_centroids:
+        feature = QgsFeature()
+        feature.setGeometry(QgsGeometry.fromPointXY(point))
+        features.append(feature)
+    provider.addFeatures(features)
+
+    parameters = {'INPUT': clustered_layer,                  
+                'BUFFER' : 200, # percentage
+                'OUTPUT' : 'memory:voronoi'} 
+    voronoi_polygons = processing.run('qgis:voronoipolygons',parameters,feedback=QgsProcessingFeedback())
+
+    # Intersect Voronoi polygons with the original polygon
+    voronoi_layer = voronoi_polygons['OUTPUT']
+    intersected_polygons = []
+
+    for feature in voronoi_layer.getFeatures():
+        voronoi_geom = feature.geometry()
+        intersection_geom = voronoi_geom.intersection(polygon)
+        if not intersection_geom.isEmpty():
+            intersected_polygons.append(intersection_geom)
+    
+    return intersected_polygons
+
+def generate_random_points(polygon: QgsGeometry, points_number: int):
+    """Generates random points within a given polygon."""
+    points = []
+    bbox = polygon.boundingBox()
+
+    while len(points) < points_number:
+        # Generate random coordinates within the bounding box
+        x = random.uniform(bbox.xMinimum(), bbox.xMaximum())
+        y = random.uniform(bbox.yMinimum(), bbox.yMaximum())
+        point = QgsPointXY(x, y)
+        
+        # Check if the point is within the polygon
+        if polygon.contains(QgsGeometry.fromPointXY(point)):
+            points.append(point)
+    
+    return points
+
+def k_means(points, k, max_iters=300, tol=1e-4):
+    """Performs K-means clustering on QgsPointXY points and returns clusters and centroids."""
+    
+    # Convert QgsPointXY points to numpy array for easier manipulation
+    point_coords = np.array([[point.x(), point.y()] for point in points])
+    
+    # Initialize centroids randomly
+    np.random.seed(42)
+    initial_indices = np.random.choice(len(point_coords), size=k, replace=False)
+    centroids = point_coords[initial_indices]
+    
+    for _ in range(max_iters):
+        # Assign points to the nearest centroid
+        distances = np.linalg.norm(point_coords[:, np.newaxis] - centroids, axis=2)
+        labels = np.argmin(distances, axis=1)
+        
+        # Compute new centroids
+        new_centroids = np.array([point_coords[labels == i].mean(axis=0) for i in range(k)])
+        
+        # Check for convergence
+        if np.linalg.norm(new_centroids - centroids) < tol:
+            break
+        
+        centroids = new_centroids
+    
+    # Create a list of QgsPointXY centroids
+    centroid_points = [QgsPointXY(centroid[0], centroid[1]) for centroid in centroids]
+    
+    # Create a list of clustered points with their cluster IDs
+    result = [{
+        'geometry': QgsPointXY(point[0], point[1]),
+        'cluster_id': int(label)
+    } for point, label in zip(point_coords, labels)]
+    
+    return result, centroid_points
+
 
 def meters_to_geographic_distance(distance_meters, src_crs, src_extent):
         y_max = src_extent.yMaximum()

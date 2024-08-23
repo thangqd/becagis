@@ -42,7 +42,6 @@ from becagis.processing_provider.Vect_SpiralWedge import SpiralWedge
 
 
 from becagis.processing_provider.Vect_SplitPolygon import SplitPolygon
-from becagis.processing_provider.Vect_SplitPolygon_new import SplitPolygon_new
 
 
 from becagis.processing_provider.Vect_Skeleton import Skeleton
@@ -80,7 +79,6 @@ class becagisProvider(QgsProcessingProvider):
         self.addAlgorithm(SpiralWedge())
 
         self.addAlgorithm(SplitPolygon())
-        self.addAlgorithm(SplitPolygon_new())
 
         self.addAlgorithm(Skeleton())
         self.addAlgorithm(Isolation())

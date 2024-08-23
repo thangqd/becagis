@@ -3,7 +3,7 @@
     <img src="images/becagis_logo.png" alt="Logo" width="90" height="75">
   <h3 align="center">BecaGIS</h3>
   <p align="center">
-    <b><i>BecaGIS GeoProcessing Tools for QGIS</i><b>
+    <b><i>GeoProcessing Tools for QGIS</i><b>
     <br />
   </p>
 </p>
@@ -11,7 +11,7 @@
 ## Descriptions
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  <summary>BecaGIS GeoProcessing Tools for QGIS</summary>
+  <summary>GeoProcessing Tools for QGIS</summary>
   <div align="center">
   <img src="images/tutorial/vect_voronoi.png">
 </div>
@@ -26,6 +26,8 @@
         <li><a href="#mic">The maximum inscribed circle of polygons</a></li>
         <li><a href="#skeleton">Skeleton/ Medial Axis of Polygons</a></li>
         <li><a href="#split-polygon">Split Polygon</a></li>
+        <li><a href="#wedge">Wedge Buffer</a></li>
+        <li><a href="#spiralwedge">Spiral Wedge Buffer</a></li>
       </ul>
        <li>         
       <a href="#attribute">Attribute</a>     
@@ -108,6 +110,23 @@ Split Polygon layer into almost equal parts using Voronoi Diagram
 <div align="center">
   <img src="images/readme/vect_split_polygon.png">
 </div>
+
+
+### Wedge Buffer
+
+Create Wedge buffers for point features
+<div id="wedge", align="center">
+  <img src="images/readme/vect_wedge.png">
+</div>
+
+
+### Spiral Wedge Buffer
+
+Create Spiral Wedge buffers for point features
+<div id="spiralwedge", align="center">
+  <img src="images/readme/vect_spiralwedge.png">
+</div>
+
 
 ### Vietnamese Font Converter
 Vietnamese Font Converter: TCVN3 <--> Unicode <--> VNI-Windows <--> Unaceented; UPPER CASE <--> lower case <--> Capitalize Each Word <--> Sentence case <--> sWAP Case
