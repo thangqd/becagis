@@ -224,10 +224,10 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
         source = self.parameterAsSource(parameters, 'INPUT', context)
         
         self.src_crs = source.sourceCrs()        
-        self.src_extend = source.sourceExtent()
+        self.src_extent = source.sourceExtent()
         if self.src_crs.isGeographic():
-            self.outer_radius = meters_to_geographic_distance(self.outer_radius, self.src_crs, self.src_extend)
-            self.inner_radius = meters_to_geographic_distance(self.inner_radius, self.src_crs, self.src_extend)
+            self.outer_radius = meters_to_geographic_distance(self.outer_radius, self.src_crs, self.src_extent)
+            self.inner_radius = meters_to_geographic_distance(self.inner_radius, self.src_crs, self.src_extent)
 
         self.total_features = source.featureCount()
         self.num_bad = 0
@@ -240,7 +240,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             if self.outer_radius_dyn:
                 outer_rad, e = self.outer_radius_property.valueAsDouble(context.expressionContext(), self.outer_radius)
                 if self.src_crs.isGeographic():
-                    outer_rad = meters_to_geographic_distance(outer_rad, self.src_crs, self.src_extend)
+                    outer_rad = meters_to_geographic_distance(outer_rad, self.src_crs, self.src_extent)
                 if not e or outer_rad < 0:
                     self.num_bad += 1
                     return []
@@ -251,7 +251,7 @@ class Wedge(QgsProcessingFeatureBasedAlgorithm):
             if self.inner_radius_dyn:
                 inner_rad, e = self.inner_radius_property.valueAsDouble(context.expressionContext(), self.inner_radius)
                 if self.src_crs.isGeographic():
-                    inner_rad = meters_to_geographic_distance(inner_rad, self.src_crs, self.src_extend)
+                    inner_rad = meters_to_geographic_distance(inner_rad, self.src_crs, self.src_extent)
                 if not e or inner_rad < 0:
                     self.num_bad += 1
                     return []

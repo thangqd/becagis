@@ -13,7 +13,7 @@ __author__ = 'Thang Quach'
 __date__ = '2022-08-25'
 __copyright__ = '(L) 2022 by Thang Quach'
 import processing
-from qgis.core import QgsGeometry, QgsPointXY, QgsVectorLayer,QgsFeature,QgsProcessingFeedback
+from qgis.core import QgsGeometry, QgsPointXY, QgsVectorLayer,QgsFeature,QgsProcessingFeedback,QgsWkbTypes
 # from qgis.core import QgsProject, QgsVectorLayer, QgsFeature, QgsGeometry, QgsPoint, QgsProcessingFeedback
 import qgis.processing as processing
 
@@ -25,6 +25,125 @@ import random
 import numpy as np
 import random
 from qgis.core import QgsGeometry, QgsPointXY
+
+
+def skeleton(polygon: QgsGeometry, density, simplified_tol, postprocessing) -> QgsFeature:
+    poly_layer = QgsVectorLayer('Polygon', 'polygon_layer', 'memory')
+    provider = poly_layer.dataProvider()
+
+    # Create a feature and add the input polygon geometry
+    feature = QgsFeature()
+    feature.setGeometry(polygon)
+    provider.addFeatures([feature])    
+
+    if (density > 0):
+        parameters3 = {'INPUT': poly_layer,
+                    'DISTANCE' :	float(density),
+                    'OUTPUT' : "memory:points"} 
+        points = processing.run('qgis:pointsalonglines', parameters3,feedback=QgsProcessingFeedback())
+    elif density==0:
+        parameters3 = {'INPUT': poly_layer,
+                    'OUTPUT' : "memory:points"} 
+        points = processing.run('qgis:extractvertices', parameters3,feedback=QgsProcessingFeedback())
+
+    # output = points['OUTPUT'].getFeatures() 
+
+    parameters4 = {'INPUT': points['OUTPUT'],                  
+                'BUFFER' : 0, # percentage
+                'OUTPUT' : 'memory:voronoi'} 
+    voronoipolygon = processing.run('qgis:voronoipolygons',parameters4,feedback=QgsProcessingFeedback())
+    
+    parameters5 = {'INPUT': voronoipolygon['OUTPUT'],
+                    'OUTPUT' : 'memory:voronoipolyline'} 
+    voronoipolyline = processing.run('qgis:polygonstolines',parameters5,feedback=QgsProcessingFeedback())
+    
+    
+    parameters6 = {'INPUT': voronoipolyline['OUTPUT'],					
+                    'OUTPUT' : 'memory:explode'}
+    explode = processing.run('qgis:explodelines',parameters6,feedback=QgsProcessingFeedback())   
+ 
+    
+    parameters7 = {'INPUT': explode['OUTPUT'],
+                    'PREDICATE' : [6], # within					
+                    'INTERSECT':  poly_layer,                    	
+                    'METHOD' : 0,
+                    'OUTPUT' : 'memory:candidate'}
+    candidate= processing.run('qgis:selectbylocation',parameters7,feedback=QgsProcessingFeedback())   
+   
+    
+    parameters8 = {'INPUT':candidate['OUTPUT'],
+                    'OUTPUT':  'memory:medialaxis'}
+    medialaxis = processing.run('qgis:saveselectedfeatures',parameters8,feedback=QgsProcessingFeedback())    
+ 
+    
+    parameters9 = {'INPUT':medialaxis['OUTPUT'],
+                    'OUTPUT':  'memory:deleteduplicategeometries'}
+    deleteduplicategeometries = processing.run('qgis:deleteduplicategeometries',parameters9,feedback=QgsProcessingFeedback())    
+ 
+    
+    parameter10 =  {'INPUT':deleteduplicategeometries['OUTPUT'],
+                    'OUTPUT':  "memory:medialaxis_dissolve"}
+    medialaxis_dissolve = processing.run('qgis:dissolve',parameter10,feedback=QgsProcessingFeedback()) 
+    
+    
+    parameter11 = {'INPUT':medialaxis_dissolve['OUTPUT'],
+                    'METHOD' : 0,
+                    'TOLERANCE' : float(simplified_tol), 
+                    'OUTPUT':  "memory:simplify"}
+    simplify = processing.run('qgis:simplifygeometries',parameter11,feedback=QgsProcessingFeedback())    
+
+    parameter12 = {'INPUT':simplify['OUTPUT'],                    
+                    'OUTPUT':  "memory:explode"}
+    explode = processing.run('qgis:explodelines',parameter12,feedback=QgsProcessingFeedback()) 
+
+          
+    parameter13 = {'LINES':explode['OUTPUT'],
+                    'ANGLE' : 30,
+                    'TYPE' : 1, # Keep the attribute of the longest line
+                    'OUTPUT':  "memory:skeleton"}
+    ske = processing.run('becagis:directionalmerge',parameter13,feedback=QgsProcessingFeedback())    
+    output =  ske['OUTPUT'].getFeatures()
+    
+    if postprocessing:        
+        features = ske['OUTPUT'].getFeatures()
+        longest_feature = next(features, None)  
+        max_length = longest_feature.geometry().length()
+
+        # crs = ske['OUTPUT'].crs().authid() 
+        # centerline_candidate = QgsVectorLayer(f'MultiLineString?crs={crs}', 'Longest Geometry', 'memory')
+        centerline_candidate = QgsVectorLayer(f'Linestring', 'Longest Geometry', 'memory')
+        # Add fields to the new layer (same as input layer)
+        centerline_candidate.dataProvider().addAttributes(ske['OUTPUT'].fields())
+        centerline_candidate.updateFields()
+
+        # Iterate through each feature and calculate its geometry length
+        for feature in features:
+            geom = feature.geometry()
+            length = geom.length()  # Calculate length of the geometry
+
+            if length > max_length:
+                max_length = length
+                longest_feature = feature
+
+            # Add the longest feature to the new layer
+        centerline_candidate.dataProvider().addFeature(longest_feature)
+
+        parameter14 = {'INPUT':centerline_candidate,
+                        'START_DISTANCE' : float(max_length/2),
+                        'END_DISTANCE' : float(max_length/2),
+                        'OUTPUT':  "memory:extended"}
+        extended = processing.run('qgis:extendlines',parameter14,feedback=QgsProcessingFeedback())    
+
+        parameter15 = {'INPUT': extended['OUTPUT'],
+                    'OVERLAY': poly_layer,
+                    'OVERLAY_FIELDS' : None,
+                        'OUTPUT':  "memory:intersected"}
+        intersected = processing.run('qgis:intersection',parameter15,feedback=QgsProcessingFeedback())    
+
+        output =  intersected['OUTPUT'].getFeatures()
+    
+    return output
+
 
 def split_polygon(polygon: QgsGeometry, points_number: int, k: int):
     """
