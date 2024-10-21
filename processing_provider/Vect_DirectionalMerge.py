@@ -122,7 +122,7 @@ class DirectionalMerge(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 self.ANGLE,
                 self.tr('Tolerance in degrees', 'Ngưỡng (độ)'),
-                type = QgsProcessingParameterNumber.Double,
+                type =QgsProcessingParameterNumber.Double,
                 defaultValue = 30
                 )
             )
