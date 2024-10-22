@@ -99,7 +99,7 @@ The maximum inscribed circle of polygons
 
 ### Skeleton
 
-Skeleton/ Medial Axis of Polygons (Check [x] Postprocessing to get Centerlines from "linear" polygons)
+Skeleton/ Medial Axis of Polygons (Check **Postprocessing to get Centerlines from Skeltons** option for "linear" polygons)
 <div align="center">
   <img src="images/readme/vect_skeleton.png">
 </div>
