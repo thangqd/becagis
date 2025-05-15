@@ -111,7 +111,7 @@ def skeleton(polygon: QgsGeometry, density, simplified_tol, postprocessing) -> Q
 
         # crs = ske['OUTPUT'].crs().authid() 
         # centerline_candidate = QgsVectorLayer(f'MultiLineString?crs={crs}', 'Longest Geometry', 'memory')
-        centerline_candidate = QgsVectorLayer(f'Linestring', 'Longest Geometry', 'memory')
+        centerline_candidate = QgsVectorLayer(f'', 'Longest Geometry', 'memory')
         # Add fields to the new layer (same as input layer)
         centerline_candidate.dataProvider().addAttributes(ske['OUTPUT'].fields())
         centerline_candidate.updateFields()

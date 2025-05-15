@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <p align="center">
-    <img src="images/becagis_logo.png" alt="Logo" width="90" height="75">
+    <img src="images/becagis.svg" alt="Logo" width="90" height="75">
   <h3 align="center">BecaGIS</h3>
   <p align="center">
     <b><i>GeoProcessing Tools for QGIS</i><b>
@@ -99,7 +99,7 @@ The maximum inscribed circle of polygons
 
 ### Skeleton
 
-Skeleton/ Medial Axis of Polygons (Check [__Postprocessing to get Centerlines from Skeletons__] option for "linear" polygons)
+Skeleton/ Medial Axis of Polygons (Output should be manually refined)
 <div align="center">
   <img src="images/readme/vect_skeleton.png">
 </div>
