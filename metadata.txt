@@ -13,7 +13,7 @@ tags=GeoProcessing, expressions, closest pair of points, farthest pair of points
 
 homepage=https://github.com/thangqd/becagis/
 category=Processing
-icon=images/becagis.svg
+icon=images/becagis_logo.png
 
 hasProcessingProvider=True
 experimental=False

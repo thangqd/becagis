@@ -77,12 +77,12 @@ class becagisPlugin(object):
         
         # # OpenData_basemap submenu        
         # self.becagiscloud_menu = QMenu(u'BecaGIS Cloud')	
-        # icon = QIcon(os.path.dirname(__file__) + "/images/becagis.svg")	
+        # icon = QIcon(os.path.dirname(__file__) + "/images/becagis_logo.png")	
         # self.becagis_add_submenu2(self.becagiscloud_menu, icon)
 
         
         # # FontConverter Submenu
-        # icon = QIcon(os.path.dirname(__file__) + "/images/becagis.svg")
+        # icon = QIcon(os.path.dirname(__file__) + "/images/becagis_logo.png")
         # self.becagiscloud_action = QAction(icon, u'BecaGIS Cloud', self.iface.mainWindow())
         # self.becagiscloud_action.triggered.connect(self.becagiscloud)
         # self.becagiscloud_menu.addAction(self.becagiscloud_action)	
